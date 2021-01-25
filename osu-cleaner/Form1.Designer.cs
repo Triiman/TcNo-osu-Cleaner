@@ -200,6 +200,7 @@
             this.elementList.Name = "elementList";
             this.elementList.Size = new System.Drawing.Size(956, 407);
             this.elementList.TabIndex = 25;
+            this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
             // 
             // panel3
             // 
@@ -332,6 +333,7 @@
             this.directorySelectButton.TabIndex = 28;
             this.directorySelectButton.Text = "Browse";
             this.directorySelectButton.UseVisualStyleBackColor = true;
+            this.directorySelectButton.Click += new System.EventHandler(this.directorySelectButton_Click);
             // 
             // directoryLabel
             // 

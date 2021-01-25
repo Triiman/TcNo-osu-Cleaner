@@ -15,12 +15,14 @@ namespace osu_cleaner
 {
     public partial class MainApp : Form
     {
-        private List<string> skinElements = new List<string>();
-        private List<string> hitSounds = new List<string>();
-        BackgroundWorker worker;
-        private long filesSize = 0;
-        private long forRemovalSize = 0;
-        private List<string> foundElements = new List<string>();
+        BackgroundWorker _worker;
+        private long _filesSize;
+        private long _forRemovalSize;
+        private List<string> _foundElements = new List<string>();
+
+        // Context menu
+        private string _selectedMenuItem;
+        private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
 
         public MainApp()
         {
@@ -29,14 +31,22 @@ namespace osu_cleaner
 
         private void MainApp_Load(object sender, EventArgs e)
         {
-            directoryPath.Text = getOsuPath();
-            setSkinList();
-            worker = new BackgroundWorker();
-            worker.DoWork += new DoWorkEventHandler(findElements);
-            worker.ProgressChanged += new ProgressChangedEventHandler(progressBar);
-            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(findComplete);
-            worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
+            directoryPath.Text = GetOsuPath();
+            _worker = new BackgroundWorker();
+            _worker.DoWork += new DoWorkEventHandler(FindElements);
+            _worker.ProgressChanged += new ProgressChangedEventHandler(ProgressBar);
+            _worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(FindComplete);
+            _worker.WorkerReportsProgress = true;
+            _worker.WorkerSupportsCancellation = true;
+
+            // Context menu
+            var tsOpenFile = new ToolStripMenuItem { Text = "Open file" };
+            tsOpenFile.Click += tsOpenFile_Click;
+            var tsOpenFolder = new ToolStripMenuItem { Text = "Open Folder" };
+            tsOpenFolder.Click += tsOpenFolder_Click;
+            var tsCopyFilePath = new ToolStripMenuItem { Text = "Copy file path" };
+            tsCopyFilePath.Click += tsCopyFilePath_Click;
+            _collectionRoundMenuStrip.Items.AddRange(new ToolStripItem[] { tsOpenFile, tsOpenFolder, tsCopyFilePath });
         }
 
         private void directorySelectButton_Click(object sender, EventArgs e)
@@ -64,17 +74,17 @@ namespace osu_cleaner
         {
             cancelButton.Visible = true;
             elementList.Items.Clear();
-            filesSize = 0;
-            filesSizeLabel.Text = "Found: " + Math.Round((double)(filesSize) / 1048576, 4) + " MB";
-            forRemovalSize = 0;
-            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(forRemovalSize) / 1048576, 4) + " MB";
-            worker.RunWorkerAsync();
+            _filesSize = 0;
+            filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
+            _forRemovalSize = 0;
+            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(_forRemovalSize) / 1048576, 4) + " MB";
+            _worker.RunWorkerAsync();
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
-            if (worker.IsBusy)
-                worker.CancelAsync();
+            if (_worker.IsBusy)
+                _worker.CancelAsync();
         }
 
         private void deleteButton_Click(object sender, EventArgs e)
@@ -88,7 +98,7 @@ namespace osu_cleaner
             {
                 try
                 {
-                    filesSize -= getFileSize(file);
+                    _filesSize -= GetFileSize(file);
                     if (DeletePermanentlyCheckbox.Checked) FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
                     else if (moveCheckBox.Checked)
                     {
@@ -104,7 +114,7 @@ namespace osu_cleaner
                 catch (NotSupportedException) { }
 
                 elementList.Items.Remove(file);
-                filesSizeLabel.Text = "Found: " + Math.Round((double)(filesSize) / 1048576, 4) + " MB";
+                filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
             }
         }
 
@@ -112,32 +122,32 @@ namespace osu_cleaner
         {
             for (int i = 0; i < elementList.Items.Count; i++)
                 elementList.SetItemChecked(i, true);
-            forRemovalSize = 0;
+            _forRemovalSize = 0;
             foreach (string file in elementList.CheckedItems)
             {
                 FileInfo sizeInfo = new FileInfo(file);
-                forRemovalSize += sizeInfo.Length;
+                _forRemovalSize += sizeInfo.Length;
             }
-            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(forRemovalSize) / 1048576, 4) + " MB";
+            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(_forRemovalSize) / 1048576, 4) + " MB";
         }
 
         private void deselectAllButton_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < elementList.Items.Count; i++)
                 elementList.SetItemChecked(i, false);
-            forRemovalSize = 0;
-            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(forRemovalSize) / 1048576, 4) + " MB";
+            _forRemovalSize = 0;
+            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(_forRemovalSize) / 1048576, 4) + " MB";
         }
 
         private void elementList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            forRemovalSize = 0;
+            _forRemovalSize = 0;
             foreach (string file in elementList.CheckedItems)
             {
                 FileInfo sizeInfo = new FileInfo(file);
-                forRemovalSize += sizeInfo.Length;
+                _forRemovalSize += sizeInfo.Length;
             }
-            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(forRemovalSize) / 1048576, 4) + " MB";
+            forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(_forRemovalSize) / 1048576, 4) + " MB";
         }
 
         private void DeletePermanentlyCheckbox_CheckedChanged(object sender, EventArgs e)
@@ -158,7 +168,7 @@ namespace osu_cleaner
             return r.IsMatch(str);
         }
 
-        private void findElements(object sender, DoWorkEventArgs e)
+        private void FindElements(object sender, DoWorkEventArgs e)
         {
             int folderCount = Directory.GetDirectories(directoryPath.Text + "Songs").Length;
             Console.WriteLine(folderCount);
@@ -172,7 +182,7 @@ namespace osu_cleaner
                     foreach (string file in Directory.GetFiles(d))
                         if (Regex.IsMatch(file, "osu$"))
                         {
-                            string bg = getBGPath(file);
+                            string bg = GetBgPath(file);
                             if (bg != null && !whitelist.Contains(bg))
                                 whitelist.Add(bg);
                         }
@@ -181,16 +191,16 @@ namespace osu_cleaner
                     {
                         if (Regex.IsMatch(file, "osb$"))
                         {
-                            List<string> sbElements = getSBElements(file);
+                            List<string> sbElements = GetSbElements(file);
                             foreach (string sbElement in sbElements)
                             {
                                 if (!whitelist.Contains(sbElement))
                                 {
-                                    long size = getFileSize(d + sbElement);
+                                    long size = GetFileSize(d + sbElement);
                                     if (size != 0)
                                     {
-                                        foundElements.Add(d + sbElement);
-                                        filesSize += size;
+                                        _foundElements.Add(d + sbElement);
+                                        _filesSize += size;
                                     }
                                 }
                             }
@@ -198,89 +208,105 @@ namespace osu_cleaner
                     }
                 }
 
-                if (!allUncommon.Checked && backgroundDeleteCheckbox.Checked)
+
+                List<string> bgElements = new List<string>();
+                foreach (string file in Directory.GetFiles(d))
                 {
-                    List<string> bgElements = new List<string>();
-                    foreach (string file in Directory.GetFiles(d))
-                        if (Regex.IsMatch(file, "osu$"))
+                    string fileName;
+                    try
+                    {
+                        fileName = new FileInfo(file).Name;
+                    }
+                    catch (PathTooLongException)
+                    {
+                        continue;
+                    }
+
+                    if (!allUncommon.Checked && backgroundDeleteCheckbox.Checked)
+                        if (Regex.IsMatch(fileName, "osu$"))
                         {
-                            string bg = getBGPath(file);
+                            string bg = GetBgPath(file);
                             if (bg != null && !bgElements.Contains(bg))
                             {
-                                long size = getFileSize(d + bg);
+                                long size = GetFileSize(d + bg);
                                 if (size != 0)
                                 {
                                     bgElements.Add(bg);
-                                    foundElements.Add(d + bg);
-                                    filesSize += size;
+                                    _foundElements.Add(d + bg);
+                                    _filesSize += size;
                                 }
                             }
                         }
-                }
 
-                foreach (string file in Directory.GetFiles(d))
-                {
                     if (allUncommon.Checked)
                     {
-                        if (!RegexMatch(file, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm|osu|png|jpeg|jpg|png|bmp|osb|osu|mp3|aac|wav|ogg|txt)$"))
+                        if (!RegexMatch(fileName, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm|osu|png|jpeg|jpg|png|bmp|osb|osu|mp3|aac|wav|ogg|txt)$"))
                         {
-                            foundElements.Add(file);
-                            filesSize += getFileSize(file);
+                            _foundElements.Add(file);
+                            _filesSize += GetFileSize(file);
                         }
                         continue;
                     }
                     if (videoDeleteCheckbox.Checked)
-                        if (RegexMatch(file, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm)$"))
+                        if (RegexMatch(fileName, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm)$"))
                         {
-                            foundElements.Add(file);
-                            filesSize += getFileSize(file);
+                            _foundElements.Add(file);
+                            _filesSize += GetFileSize(file);
                         }
                     if (skinDeleteCheckbox.Checked)
-                        foreach (string regex in skinElements)
-                            if (RegexMatch(file, regex))
-                            {
-                                foundElements.Add(file);
-                                filesSize += getFileSize(file);
-                            }
+                        if (RegexMatch(fileName, "^(applause|approachcircle|button-|combobreak|comboburst|" +
+                                                 "count|cursor|default-|failsound|followpoint|fruit-|go.png|" +
+                                                 "go@2x.png|gos.png|gos@2x.png|hit0|hit100|hit300|hit50|" +
+                                                 "hitcircle|inputoverlay-|lighting.png|lighting@2x.png|mania-|" +
+                                                 "menu.|menu-back|particle100|particle300|particle50|pause-|" +
+                                                 "pippidon|play-|ranking-|ready|reversearrow|score-|scorebar-|" +
+                                                 "sectionfail|sectionpass|section-|selection-|sliderb|sliderfollowcircle|" +
+                                                 "sliderscorepoint|spinnerbonus|spinner-|spinnerspin|star.png|" +
+                                                 "star@2x.png|star2.png|star2@2x.png|taiko-|taikobigcircle|" +
+                                                 "taikohitcircle)"))
+                        {
+                            _foundElements.Add(file);
+                            _filesSize += GetFileSize(file);
+                        }
 
                     if (hitSoundsDeleteCheckbox.Checked)
-                        if (RegexMatch(file, "\\\\drum-") || RegexMatch(file, "\\\\normal-") || RegexMatch(file, "\\\\soft-"))
+                        if (RegexMatch(fileName, "^(drum-|normal-|soft-)"))
                         {
-                            foundElements.Add(file);
-                            filesSize += getFileSize(file);
+                            _foundElements.Add(file);
+                            _filesSize += GetFileSize(file);
                         }
 
                     if (bloatExtraDeleteBox.Checked)
-                        if (RegexMatch(file, "(thumbs.db|desktop.ini|.DS_Store)$"))
+                        if (RegexMatch(fileName, "(thumbs.db|desktop.ini|ds_store)$"))
                         {
-                            foundElements.Add(file);
-                            filesSize += getFileSize(file);
+                            _foundElements.Add(file);
+                            _filesSize += GetFileSize(file);
                         }
                 }
-                if (worker.CancellationPending) return;
+                if (_worker.CancellationPending) return;
                 current++;
-                worker.ReportProgress((int)((double)current / folderCount * 100));
+                _worker.ReportProgress((int)((double)current / folderCount * 100));
             }
-            worker.ReportProgress(100);
+            _worker.ReportProgress(100);
         }
 
-        private void progressBar(object sender, ProgressChangedEventArgs e)
+        private void ProgressBar(object sender, ProgressChangedEventArgs e)
         {
             FindProgressBar.Value = e.ProgressPercentage;
-            filesSizeLabel.Text = "Found: " + Math.Round((double)(filesSize) / 1048576, 4) + " MB";
+            filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
         }
 
-        private void findComplete(object sender, RunWorkerCompletedEventArgs e)
+        private void FindComplete(object sender, RunWorkerCompletedEventArgs e)
         {
-            foreach (string file in foundElements)
+            foreach (string file in _foundElements)
                     elementList.Items.Add(file);
-            filesSizeLabel.Text = "Found: " + Math.Round((double)(filesSize) / 1048576, 4) + " MB";
-            foundElements.Clear();
+            filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
+            _foundElements.Clear();
             cancelButton.Visible = false;
             FindProgressBar.Value = 0;
         }
 
-        private string getOsuPath()
+        private string GetOsuPath()
         {
             using (RegistryKey osureg = Registry.ClassesRoot.OpenSubKey("osu\\DefaultIcon"))
             {
@@ -295,29 +321,36 @@ namespace osu_cleaner
             }
         }
 
-        private string getBGPath(string path)
+        private string GetBgPath(string path)
         {
-            using (StreamReader file = File.OpenText(path))
+            try
             {
-                string line;
-                while ((line = file.ReadLine()) != null)
+                using (StreamReader file = File.OpenText(path))
                 {
-                    if (Regex.IsMatch(line, "^//Background and Video events"))
+                    string line;
+                    while ((line = file.ReadLine()) != null)
                     {
-                        line = file.ReadLine();
-                        string[] items = line.Split(',');
-                        if (items[0] == "0")
+                        if (Regex.IsMatch(line, "^//Background and Video events"))
                         {
-                            string tmp = "\\" + items[2].Replace("\"", string.Empty);
-                            return tmp;
+                            line = file.ReadLine();
+                            string[] items = line.Split(',');
+                            if (items[0] == "0")
+                            {
+                                string tmp = "\\" + items[2].Replace("\"", string.Empty);
+                                return tmp;
+                            }
                         }
                     }
+                    return null;
                 }
+            }
+            catch (System.IO.PathTooLongException)
+            {
                 return null;
             }
         }
 
-        private List<string> getSBElements(string file)
+        private List<string> GetSbElements(string file)
         {
             List<string> sbElements = new List<string>();
             using (StreamReader sbFile = File.OpenText(file))
@@ -338,7 +371,7 @@ namespace osu_cleaner
             return sbElements;
         }
 
-        private long getFileSize(string path)
+        private long GetFileSize(string path)
         {
             try
             {
@@ -358,64 +391,6 @@ namespace osu_cleaner
                 return 0;
             }
 
-        }
-
-        private void setSkinList()
-        {
-            skinElements.Add("\\\\applause"); ;
-            skinElements.Add("\\\\approachcircle"); ;
-            skinElements.Add("\\\\button-"); ;
-            skinElements.Add("\\\\combobreak");
-            skinElements.Add("\\\\comboburst");
-            skinElements.Add("\\\\count");
-            skinElements.Add("\\\\cursor");
-            skinElements.Add("\\\\default-");
-            skinElements.Add("\\\\failsound");
-            skinElements.Add("\\\\followpoint");
-            skinElements.Add("\\\\fruit-");
-            skinElements.Add("\\\\go\\.png");
-            skinElements.Add("\\\\go@2x\\.png");
-            skinElements.Add("\\\\gos\\.png");
-            skinElements.Add("\\\\gos@2x\\.png");
-            skinElements.Add("\\\\hit0");
-            skinElements.Add("\\\\hit100");
-            skinElements.Add("\\\\hit300");
-            skinElements.Add("\\\\hit50");
-            skinElements.Add("\\\\hitcircle");
-            skinElements.Add("\\\\inputoverlay-");
-            skinElements.Add("\\\\lighting\\.png");
-            skinElements.Add("\\\\lighting@2x\\.png");
-            skinElements.Add("\\\\mania-");
-            skinElements.Add("\\\\menu\\.");
-            skinElements.Add("\\\\menu-back");
-            skinElements.Add("\\\\particle100");
-            skinElements.Add("\\\\particle300");
-            skinElements.Add("\\\\particle50");
-            skinElements.Add("\\\\pause-");
-            skinElements.Add("\\\\pippidon");
-            skinElements.Add("\\\\play-");
-            skinElements.Add("\\\\ranking-");
-            skinElements.Add("\\\\ready");
-            skinElements.Add("\\\\reversearrow");
-            skinElements.Add("\\\\score-");
-            skinElements.Add("\\\\scorebar-");
-            skinElements.Add("\\\\sectionfail");
-            skinElements.Add("\\\\sectionpass");
-            skinElements.Add("\\\\section-");
-            skinElements.Add("\\\\selection-");
-            skinElements.Add("\\\\sliderb");
-            skinElements.Add("\\\\sliderfollowcircle");
-            skinElements.Add("\\\\sliderscorepoint");
-            skinElements.Add("\\\\spinnerbonus");
-            skinElements.Add("\\\\spinner-");
-            skinElements.Add("\\\\spinnerspin");
-            skinElements.Add("\\\\star\\.png");
-            skinElements.Add("\\\\star@2x\\.png");
-            skinElements.Add("\\\\star2\\.png");
-            skinElements.Add("\\\\star2@2x\\.png");
-            skinElements.Add("\\\\taiko-");
-            skinElements.Add("\\\\taikobigcircle");
-            skinElements.Add("\\\\taikohitcircle");
         }
 
         private void allUncommon_CheckedChanged(object sender, EventArgs e)
@@ -439,6 +414,42 @@ namespace osu_cleaner
         {
             lblHenntix.LinkVisited = true;
             System.Diagnostics.Process.Start("https://github.com/henntix/osu-cleaner");
+        }
+
+        // Context menu
+        private void tsCopyFilePath_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(_selectedMenuItem);
+        }
+
+        private void tsOpenFolder_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(_selectedMenuItem)) return;
+            string fileFullPath = Path.GetFullPath(_selectedMenuItem);
+            System.Diagnostics.Process.Start("explorer.exe", string.Format("/select,\"{0}\"", fileFullPath));
+        }
+
+        private void tsOpenFile_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(_selectedMenuItem)) return;
+            System.Diagnostics.Process.Start(_selectedMenuItem);
+        }
+
+        private void elementList_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            var index = elementList.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+            {
+                elementList.SelectedIndex = index;
+                _selectedMenuItem = elementList.Items[index].ToString();
+                _collectionRoundMenuStrip.Show(Cursor.Position);
+                _collectionRoundMenuStrip.Visible = true;
+            }
+            else
+            {
+                _collectionRoundMenuStrip.Visible = false;
+            }
         }
     }
 }
