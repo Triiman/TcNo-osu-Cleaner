@@ -62,7 +62,6 @@ namespace osu_cleaner
 
         private void findButton_Click(object sender, EventArgs e)
         {
-            FindProgressBar.Visible = true;
             cancelButton.Visible = true;
             elementList.Items.Clear();
             filesSize = 0;
@@ -155,7 +154,7 @@ namespace osu_cleaner
 
         private bool RegexMatch(string str, string regex)
         {
-            Regex r = new Regex(regex);
+            Regex r = new Regex(regex, RegexOptions.IgnoreCase);
             return r.IsMatch(str);
         }
 
@@ -166,7 +165,7 @@ namespace osu_cleaner
             int current = 0;
             foreach (string d in Directory.GetDirectories(directoryPath.Text + "Songs"))
             {
-                if (sbDeleteCheckbox.Checked)
+                if (!allUncommon.Checked && sbDeleteCheckbox.Checked)
                 {
                     //whitelisting BG from deletion (often BG files are used in SB)
                     List<string> whitelist = new List<string>();
@@ -199,7 +198,7 @@ namespace osu_cleaner
                     }
                 }
 
-                if (backgroundDeleteCheckbox.Checked)
+                if (!allUncommon.Checked && backgroundDeleteCheckbox.Checked)
                 {
                     List<string> bgElements = new List<string>();
                     foreach (string file in Directory.GetFiles(d))
@@ -221,30 +220,42 @@ namespace osu_cleaner
 
                 foreach (string file in Directory.GetFiles(d))
                 {
+                    if (allUncommon.Checked)
+                    {
+                        if (!RegexMatch(file, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm|osu|png|jpeg|jpg|png|bmp|osb|osu|mp3|aac|wav|ogg|txt)$"))
+                        {
+                            foundElements.Add(file);
+                            filesSize += getFileSize(file);
+                        }
+                        continue;
+                    }
                     if (videoDeleteCheckbox.Checked)
-                        if (RegexMatch(file, "avi$") || RegexMatch(file, "flv$"))
+                        if (RegexMatch(file, "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm)$"))
                         {
                             foundElements.Add(file);
                             filesSize += getFileSize(file);
                         }
                     if (skinDeleteCheckbox.Checked)
-                    {
                         foreach (string regex in skinElements)
                             if (RegexMatch(file, regex))
                             {
                                 foundElements.Add(file);
                                 filesSize += getFileSize(file);
                             }
-                    }
-                    if (hitSoundsDeleteCheckbox.Checked)
-                    {
 
+                    if (hitSoundsDeleteCheckbox.Checked)
                         if (RegexMatch(file, "\\\\drum-") || RegexMatch(file, "\\\\normal-") || RegexMatch(file, "\\\\soft-"))
                         {
                             foundElements.Add(file);
                             filesSize += getFileSize(file);
                         }
-                    }
+
+                    if (bloatExtraDeleteBox.Checked)
+                        if (RegexMatch(file, "(thumbs.db|desktop.ini|.DS_Store)$"))
+                        {
+                            foundElements.Add(file);
+                            filesSize += getFileSize(file);
+                        }
                 }
                 if (worker.CancellationPending) return;
                 current++;
@@ -265,7 +276,6 @@ namespace osu_cleaner
                     elementList.Items.Add(file);
             filesSizeLabel.Text = "Found: " + Math.Round((double)(filesSize) / 1048576, 4) + " MB";
             foundElements.Clear();
-            FindProgressBar.Visible = false;
             cancelButton.Visible = false;
             FindProgressBar.Value = 0;
         }
@@ -343,6 +353,11 @@ namespace osu_cleaner
             {
                 return 0;
             }
+            catch (PathTooLongException)
+            {
+                return 0;
+            }
+
         }
 
         private void setSkinList()
@@ -401,6 +416,29 @@ namespace osu_cleaner
             skinElements.Add("\\\\taiko-");
             skinElements.Add("\\\\taikobigcircle");
             skinElements.Add("\\\\taikohitcircle");
+        }
+
+        private void allUncommon_CheckedChanged(object sender, EventArgs e)
+        {
+            bool bChecked = allUncommon.Checked;
+            bloatExtraDeleteBox.Enabled = !bChecked;
+            hitSoundsDeleteCheckbox.Enabled = !bChecked;
+            backgroundDeleteCheckbox.Enabled = !bChecked;
+            sbDeleteCheckbox.Enabled = !bChecked;
+            skinDeleteCheckbox.Enabled = !bChecked;
+            videoDeleteCheckbox.Enabled = !bChecked;
+        }
+
+        private void lblTechNobo_Click(object sender, EventArgs e)
+        {
+            lblTechNobo.LinkVisited = true;
+            System.Diagnostics.Process.Start("https://github.com/TcNobo/osu-cleaner");
+        }
+
+        private void lblHenntix_Click(object sender, EventArgs e)
+        {
+            lblHenntix.LinkVisited = true;
+            System.Diagnostics.Process.Start("https://github.com/henntix/osu-cleaner");
         }
     }
 }
