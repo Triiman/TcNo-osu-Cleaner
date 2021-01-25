@@ -6,16 +6,24 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
+
+using DarkUI;
+using DarkUI.Forms;
+
 namespace osu_cleaner
 {
-    public partial class MainApp : Form
+    public partial class MainApp : DarkForm
     {
-        BackgroundWorker _worker;
+        BackgroundWorker _worker, _delWorker;
         private long _filesSize;
         private long _forRemovalSize;
         private List<string> _foundElements = new List<string>();
@@ -38,6 +46,13 @@ namespace osu_cleaner
             _worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(FindComplete);
             _worker.WorkerReportsProgress = true;
             _worker.WorkerSupportsCancellation = true;
+
+            _delWorker = new BackgroundWorker();
+            _delWorker.DoWork += new DoWorkEventHandler(DeleteElements);
+            _delWorker.ProgressChanged += new ProgressChangedEventHandler(ProgressBar);
+            _delWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(DeleteComplete);
+            _delWorker.WorkerReportsProgress = true;
+            _delWorker.WorkerSupportsCancellation = true;
 
             // Context menu
             var tsOpenFile = new ToolStripMenuItem { Text = "Open file" };
@@ -78,6 +93,8 @@ namespace osu_cleaner
             filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
             _forRemovalSize = 0;
             forRemovalSizeLabel.Text = "Selected for removal: " + Math.Round((double)(_forRemovalSize) / 1048576, 4) + " MB";
+
+            FindProgressBar.Show();
             _worker.RunWorkerAsync();
         }
 
@@ -85,37 +102,8 @@ namespace osu_cleaner
         {
             if (_worker.IsBusy)
                 _worker.CancelAsync();
-        }
-
-        private void deleteButton_Click(object sender, EventArgs e)
-        {
-            List<string> delete = new List<string>();
-            foreach (string file in elementList.CheckedItems)//adding items to temporary collection to let me delete items from on-screen list
-                delete.Add(file);
-            if (moveCheckBox.Checked) Directory.CreateDirectory(directoryPath.Text + "Cleaned");
-
-            foreach (string file in delete)
-            {
-                try
-                {
-                    _filesSize -= GetFileSize(file);
-                    if (DeletePermanentlyCheckbox.Checked) FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
-                    else if (moveCheckBox.Checked)
-                    {
-                        FileInfo fileInfo = new FileInfo(file);
-                        string relativePath = fileInfo.Directory.FullName.Replace(directoryPath.Text + "Songs", directoryPath.Text + "Cleaned\\");
-                        if (!Directory.Exists(relativePath))
-                            Directory.CreateDirectory(relativePath);
-                        File.Move(file, relativePath + "\\" + fileInfo.Name);
-                    }
-                    else FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                }
-                catch (FileNotFoundException) { }
-                catch (NotSupportedException) { }
-
-                elementList.Items.Remove(file);
-                filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
-            }
+            if (_delWorker.IsBusy)
+                _delWorker.CancelAsync();
         }
 
         private void selectAllButton_Click(object sender, EventArgs e)
@@ -170,7 +158,17 @@ namespace osu_cleaner
 
         private void FindElements(object sender, DoWorkEventArgs e)
         {
-            int folderCount = Directory.GetDirectories(directoryPath.Text + "Songs").Length;
+            int folderCount;
+            try
+            {
+                folderCount = Directory.GetDirectories(directoryPath.Text + "Songs").Length;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("Can not find Songs directory in osu! folder.", "Fatal error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                throw;
+            }
             Console.WriteLine(folderCount);
             int current = 0;
             foreach (string d in Directory.GetDirectories(directoryPath.Text + "Songs"))
@@ -288,6 +286,7 @@ namespace osu_cleaner
                 _worker.ReportProgress((int)((double)current / folderCount * 100));
             }
             _worker.ReportProgress(100);
+            progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
         }
 
         private void ProgressBar(object sender, ProgressChangedEventArgs e)
@@ -298,12 +297,14 @@ namespace osu_cleaner
 
         private void FindComplete(object sender, RunWorkerCompletedEventArgs e)
         {
+            progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123);
             foreach (string file in _foundElements)
                     elementList.Items.Add(file);
             filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB";
             _foundElements.Clear();
             cancelButton.Visible = false;
             FindProgressBar.Value = 0;
+            FindProgressBar.Hide();
         }
 
         private string GetOsuPath()
@@ -406,13 +407,11 @@ namespace osu_cleaner
 
         private void lblTechNobo_Click(object sender, EventArgs e)
         {
-            lblTechNobo.LinkVisited = true;
             System.Diagnostics.Process.Start("https://github.com/TcNobo/osu-cleaner");
         }
 
         private void lblHenntix_Click(object sender, EventArgs e)
         {
-            lblHenntix.LinkVisited = true;
             System.Diagnostics.Process.Start("https://github.com/henntix/osu-cleaner");
         }
 
@@ -450,6 +449,90 @@ namespace osu_cleaner
             {
                 _collectionRoundMenuStrip.Visible = false;
             }
+        }
+
+
+
+
+
+
+
+        private void deleteButton_Click(object sender, EventArgs e)
+        {
+            if (moveCheckBox.Checked) Directory.CreateDirectory(directoryPath.Text + "Cleaned");
+            FindProgressBar.Show();
+            _delWorker.RunWorkerAsync();
+        }
+
+        private void DeleteElements(object sender, DoWorkEventArgs e)
+        {
+            List<string> delete = new List<string>();
+            foreach (string file in elementList.CheckedItems)//adding items to temporary collection to let me delete items from on-screen list
+                delete.Add(file);
+
+            int totalToDelete = delete.Count;
+            int current = 0;
+            
+            foreach (string file in delete)
+            {
+                try
+                {
+                    _filesSize -= GetFileSize(file);
+                    if (DeletePermanentlyCheckbox.Checked) 
+                        FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
+                    else if (moveCheckBox.Checked)
+                    {
+                        FileInfo fileInfo = new FileInfo(file);
+                        if (fileInfo.Directory != null)
+                        {
+                            string relativePath = fileInfo.Directory.FullName.Replace(directoryPath.Text + "Songs", directoryPath.Text + "Cleaned");
+                            Directory.CreateDirectory(relativePath);
+                            File.Move(file, Path.Combine(relativePath, fileInfo.Name));
+                        }
+                    }
+                    else FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+
+                    current++;
+                }
+                catch (FileNotFoundException) { }
+                catch (NotSupportedException) { }
+
+                // Prevent cross-thread errors
+                elementList.Invoke(() => { elementList.Items.Remove(file); });
+                filesSizeLabel.Invoke(() => { filesSizeLabel.Text = "Found: " + Math.Round((double)(_filesSize) / 1048576, 4) + " MB"; });
+
+                _delWorker.ReportProgress((int)((double)current / totalToDelete * 100));
+            }
+            _delWorker.ReportProgress(100);
+            progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
+        }
+
+        private void FindProgressBar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DeleteComplete(object sender, RunWorkerCompletedEventArgs e)
+        {
+            cancelButton.Visible = false;
+            FindProgressBar.Value = 0;
+            FindProgressBar.Hide();
+        }
+
+    }
+}
+
+public static class ControlExtensions
+{
+    public static void Invoke(this Control control, Action action)
+    {
+        if (control.InvokeRequired)
+        {
+            control.Invoke(new MethodInvoker(action), null);
+        }
+        else
+        {
+            action.Invoke();
         }
     }
 }
