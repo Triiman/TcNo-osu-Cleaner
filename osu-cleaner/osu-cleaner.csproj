@@ -120,6 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="img\osu-cleaner-logo.256.png" />
+    <None Include="img\osu-cleaner-logo.256_click.png" />
+    <None Include="img\osu-cleaner-logo.256_hover.png" />
     <Content Include="osu_cleaner_logo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

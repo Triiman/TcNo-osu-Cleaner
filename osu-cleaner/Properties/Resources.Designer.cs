@@ -69,5 +69,25 @@ namespace osu_cleaner.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap osu_cleaner_logo_256_click {
+            get {
+                object obj = ResourceManager.GetObject("osu_cleaner_logo_256_click", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap osu_cleaner_logo_256_hover {
+            get {
+                object obj = ResourceManager.GetObject("osu_cleaner_logo_256_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

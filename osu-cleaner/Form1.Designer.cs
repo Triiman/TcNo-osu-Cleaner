@@ -45,6 +45,7 @@ namespace osu_cleaner
             this.openMoved = new DarkUI.Controls.DarkButton();
             this.deleteButton = new DarkUI.Controls.DarkButton();
             this.pnlCheckboxes = new System.Windows.Forms.Panel();
+            this.lblPrompt = new DarkUI.Controls.DarkLabel();
             this.allUncommon = new DarkUI.Controls.DarkCheckBox();
             this.bloatExtraDeleteBox = new DarkUI.Controls.DarkCheckBox();
             this.hitSoundsDeleteCheckbox = new DarkUI.Controls.DarkCheckBox();
@@ -59,19 +60,18 @@ namespace osu_cleaner
             this.pnlDirBar = new System.Windows.Forms.Panel();
             this.tblEntireForm = new System.Windows.Forms.TableLayoutPanel();
             this.progressBarBackground = new System.Windows.Forms.Panel();
+            this.FindProgressBar = new osu_cleaner.DarkProgressBar();
             this.tblTopSection = new System.Windows.Forms.TableLayoutPanel();
             this.tblLogoButtons = new System.Windows.Forms.TableLayoutPanel();
             this.pnlFindCancel = new System.Windows.Forms.Panel();
             this.findButton = new DarkUI.Controls.DarkButton();
             this.cancelButton = new DarkUI.Controls.DarkButton();
             this.logoBox = new System.Windows.Forms.PictureBox();
+            this.elementList = new osu_cleaner.DarkCheckedListBox();
             this.stripInfo = new System.Windows.Forms.StatusStrip();
             this.lblHenntix = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTechNobo = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTCNOWeb = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblPrompt = new DarkUI.Controls.DarkLabel();
-            this.FindProgressBar = new osu_cleaner.DarkProgressBar();
-            this.elementList = new osu_cleaner.DarkCheckedListBox();
             this.tbLFooter.SuspendLayout();
             this.pnlBottomInfo.SuspendLayout();
             this.pnlBottomButtons.SuspendLayout();
@@ -232,6 +232,17 @@ namespace osu_cleaner
             this.pnlCheckboxes.Size = new System.Drawing.Size(656, 179);
             this.pnlCheckboxes.TabIndex = 25;
             // 
+            // lblPrompt
+            // 
+            this.lblPrompt.AutoSize = true;
+            this.lblPrompt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.lblPrompt.Location = new System.Drawing.Point(3, 0);
+            this.lblPrompt.Margin = new System.Windows.Forms.Padding(0);
+            this.lblPrompt.Name = "lblPrompt";
+            this.lblPrompt.Size = new System.Drawing.Size(139, 13);
+            this.lblPrompt.TabIndex = 28;
+            this.lblPrompt.Text = "Select files to Move/Delete:";
+            // 
             // allUncommon
             // 
             this.allUncommon.Location = new System.Drawing.Point(6, 157);
@@ -386,6 +397,16 @@ namespace osu_cleaner
             this.progressBarBackground.Size = new System.Drawing.Size(824, 23);
             this.progressBarBackground.TabIndex = 28;
             // 
+            // FindProgressBar
+            // 
+            this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
+            this.FindProgressBar.Name = "FindProgressBar";
+            this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
+            this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.FindProgressBar.TabIndex = 22;
+            this.FindProgressBar.Visible = false;
+            // 
             // tblTopSection
             // 
             this.tblTopSection.ColumnCount = 2;
@@ -413,15 +434,16 @@ namespace osu_cleaner
             this.tblLogoButtons.RowCount = 2;
             this.tblLogoButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblLogoButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-            this.tblLogoButtons.Size = new System.Drawing.Size(156, 159);
+            this.tblLogoButtons.Size = new System.Drawing.Size(156, 179);
             this.tblLogoButtons.TabIndex = 26;
+            this.tblLogoButtons.Paint += new System.Windows.Forms.PaintEventHandler(this.tblLogoButtons_Paint);
             // 
             // pnlFindCancel
             // 
             this.pnlFindCancel.Controls.Add(this.findButton);
             this.pnlFindCancel.Controls.Add(this.cancelButton);
             this.pnlFindCancel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlFindCancel.Location = new System.Drawing.Point(0, 130);
+            this.pnlFindCancel.Location = new System.Drawing.Point(0, 150);
             this.pnlFindCancel.Margin = new System.Windows.Forms.Padding(0);
             this.pnlFindCancel.Name = "pnlFindCancel";
             this.pnlFindCancel.Size = new System.Drawing.Size(156, 29);
@@ -456,10 +478,31 @@ namespace osu_cleaner
             this.logoBox.ImageLocation = "";
             this.logoBox.Location = new System.Drawing.Point(3, 3);
             this.logoBox.Name = "logoBox";
-            this.logoBox.Size = new System.Drawing.Size(150, 124);
+            this.logoBox.Size = new System.Drawing.Size(150, 144);
             this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.logoBox.TabIndex = 28;
             this.logoBox.TabStop = false;
+            this.logoBox.Click += new System.EventHandler(this.logoBox_Click);
+            this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.logoBox_MouseDown);
+            this.logoBox.MouseEnter += new System.EventHandler(this.logoBox_HoverImage);
+            this.logoBox.MouseLeave += new System.EventHandler(this.logoBox_MouseLeave);
+            this.logoBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.logoBox_HoverImage);
+            // 
+            // elementList
+            // 
+            this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(44)))));
+            this.elementList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.elementList.CheckOnClick = true;
+            this.elementList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.elementList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+            this.elementList.FormattingEnabled = true;
+            this.elementList.Items.AddRange(new object[] {
+            "Sample line"});
+            this.elementList.Location = new System.Drawing.Point(3, 229);
+            this.elementList.Name = "elementList";
+            this.elementList.Size = new System.Drawing.Size(824, 378);
+            this.elementList.TabIndex = 25;
+            this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
             // 
             // stripInfo
             // 
@@ -485,6 +528,8 @@ namespace osu_cleaner
             this.lblHenntix.Size = new System.Drawing.Size(117, 15);
             this.lblHenntix.Text = "Original project: henntix";
             this.lblHenntix.Click += new System.EventHandler(this.lblHenntix_Click);
+            this.lblHenntix.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.lblHenntix.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // lblTechNobo
             // 
@@ -497,6 +542,8 @@ namespace osu_cleaner
             this.lblTechNobo.Size = new System.Drawing.Size(157, 15);
             this.lblTechNobo.Text = "Updated && Styled by TechNobo";
             this.lblTechNobo.Click += new System.EventHandler(this.lblTechNobo_Click);
+            this.lblTechNobo.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.lblTechNobo.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // lblTCNOWeb
             // 
@@ -509,43 +556,8 @@ namespace osu_cleaner
             this.lblTCNOWeb.Size = new System.Drawing.Size(91, 15);
             this.lblTCNOWeb.Text = "tcno.co (Website)";
             this.lblTCNOWeb.Click += new System.EventHandler(this.lblTTCNOWeb_Click);
-            // 
-            // lblPrompt
-            // 
-            this.lblPrompt.AutoSize = true;
-            this.lblPrompt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.lblPrompt.Location = new System.Drawing.Point(3, 0);
-            this.lblPrompt.Margin = new System.Windows.Forms.Padding(0);
-            this.lblPrompt.Name = "lblPrompt";
-            this.lblPrompt.Size = new System.Drawing.Size(139, 13);
-            this.lblPrompt.TabIndex = 28;
-            this.lblPrompt.Text = "Select files to Move/Delete:";
-            // 
-            // FindProgressBar
-            // 
-            this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
-            this.FindProgressBar.Name = "FindProgressBar";
-            this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
-            this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.FindProgressBar.TabIndex = 22;
-            this.FindProgressBar.Visible = false;
-            // 
-            // elementList
-            // 
-            this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(44)))));
-            this.elementList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.elementList.CheckOnClick = true;
-            this.elementList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.elementList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
-            this.elementList.FormattingEnabled = true;
-            this.elementList.Items.AddRange(new object[] {
-            "Sample line"});
-            this.elementList.Location = new System.Drawing.Point(3, 229);
-            this.elementList.Name = "elementList";
-            this.elementList.Size = new System.Drawing.Size(824, 378);
-            this.elementList.TabIndex = 25;
-            this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
+            this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
+            this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
             // MainApp
             // 
