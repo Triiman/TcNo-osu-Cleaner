@@ -1,11 +1,11 @@
 <p align="center">
   <a href="https://tcno.co/">
-    <img src="/osu-cleaner/img/banner.png"></a>
+    <img src="/img/banner.png"></a>
 </p>
 <p align="center">
   <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/TcNobo/osu-cleaner/total?logo=GitHub&style=flat-square">
   <a href="https://tcno.co/">
-    <img alt="Website" src="/other/img/web.svg" height=20"></a>
+    <img alt="Website" src="/img/web.svg" height=20"></a>
   <a href="https://s.tcno.co/AccSwitcherDiscord">
     <img alt="Discord server" src="https://img.shields.io/discord/217649733915770880?label=Discord&logo=discord&style=flat-square"></a>
   <a href="https://twitter.com/TcNobo">
@@ -14,8 +14,8 @@
   <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/TcNobo/osu-cleaner?logo=GitHub&style=flat-square">
 </p>
                                                                                                                                   
-<p align="center"><a target="_blank" href="https://github.com/TcNobo/TcNo-Acc-Switcher/releases/latest">
-  <img alt="JetBrains Support - Open Source License" src="/osu-cleaner/img/btnDownload.png" height=70"></a></p>
+<p align="center"><a target="_blank" href="https://github.com/TcNobo/osu-cleaner/releases/latest">
+  <img alt="JetBrains Support - Open Source License" src="/img/btnDownload.png" height=70"></a></p>
 
 
 Small tool, written in C#, to clean unused elements from beatmaps.
