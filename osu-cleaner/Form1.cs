@@ -1,11 +1,13 @@
 /**
 * osu-cleaner
-* Version: 1.00
-* Author: henntix
+* Version: 2.00
+* Original project: henntix
+* Updated & Styling: TechNobo (https://tcno.co)
 */
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
@@ -62,6 +64,9 @@ namespace osu_cleaner
             var tsCopyFilePath = new ToolStripMenuItem { Text = "Copy file path" };
             tsCopyFilePath.Click += tsCopyFilePath_Click;
             _collectionRoundMenuStrip.Items.AddRange(new ToolStripItem[] { tsOpenFile, tsOpenFolder, tsCopyFilePath });
+
+            openMoved.Visible = Directory.Exists(Path.Combine(directoryPath.Text, "Cleaned"));
+            elementList.Items.Clear();
         }
 
         private void directorySelectButton_Click(object sender, EventArgs e)
@@ -77,12 +82,16 @@ namespace osu_cleaner
                 //check if osu!.exe is present
                 if (!File.Exists(folder.SelectedPath + "\\osu!.exe"))
                 {
-                    MessageBox.Show("Not a valid osu! directory!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    using (var dlg = new DarkMessageBox("Not a valid osu! directory!", "Error!", DarkMessageBoxIcon.Error, DarkDialogButton.Ok))
+                    {
+                        dlg.ShowDialog();
+                    }
                     directorySelectButton_Click(sender, e);
                     return;
                 }
             }
-            directoryPath.Text = folder.SelectedPath + "\\";
+            directoryPath.Text = folder.SelectedPath;
+            openMoved.Visible = Directory.Exists(Path.Combine(directoryPath.Text, "Cleaned"));
         }
 
         private void findButton_Click(object sender, EventArgs e)
@@ -161,7 +170,7 @@ namespace osu_cleaner
             int folderCount;
             try
             {
-                folderCount = Directory.GetDirectories(directoryPath.Text + "Songs").Length;
+                folderCount = Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")).Length;
             }
             catch (DirectoryNotFoundException)
             {
@@ -171,7 +180,7 @@ namespace osu_cleaner
             }
             Console.WriteLine(folderCount);
             int current = 0;
-            foreach (string d in Directory.GetDirectories(directoryPath.Text + "Songs"))
+            foreach (string d in Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")))
             {
                 if (!allUncommon.Checked && sbDeleteCheckbox.Checked)
                 {
@@ -252,16 +261,15 @@ namespace osu_cleaner
                             _filesSize += GetFileSize(file);
                         }
                     if (skinDeleteCheckbox.Checked)
-                        if (RegexMatch(fileName, "^(applause|approachcircle|button-|combobreak|comboburst|" +
-                                                 "count|cursor|default-|failsound|followpoint|fruit-|go.png|" +
-                                                 "go@2x.png|gos.png|gos@2x.png|hit0|hit100|hit300|hit50|" +
-                                                 "hitcircle|inputoverlay-|lighting.png|lighting@2x.png|mania-|" +
-                                                 "menu.|menu-back|particle100|particle300|particle50|pause-|" +
-                                                 "pippidon|play-|ranking-|ready|reversearrow|score-|scorebar-|" +
-                                                 "sectionfail|sectionpass|section-|selection-|sliderb|sliderfollowcircle|" +
-                                                 "sliderscorepoint|spinnerbonus|spinner-|spinnerspin|star.png|" +
-                                                 "star@2x.png|star2.png|star2@2x.png|taiko-|taikobigcircle|" +
-                                                 "taikohitcircle)"))
+                        if (RegexMatch(fileName, "^(applause|approachcircle|button-|combobreak|comboburst|count1|" +
+                                                 "count2|count3|count|cursor|default-|failsound|fail-background|followpoint|" +
+                                                 "fruit-|go.png|go@2x.png|gos.png|gos@2x.png|hit0|hit100|hit300|hit50|" +
+                                                 "hitcircle|inputoverlay-|lighting|lighting@2x.png|mania-|menu.|menu-|" +
+                                                 "menu-back|particle100|particle300|particle50|pause-|pippidon|play-|" +
+                                                 "ranking-|ready|reversearrow|score-|scorebar-|sectionfail|sectionpass|" +
+                                                 "section-|selection-|sliderb|sliderfollowcircle|sliderscorepoint|spinnerbonus|" +
+                                                 "spinner-|spinnerspin|star.png|star@2x.png|star2.png|" +
+                                                 "star2@2x.png|taiko-|taikobigcircle|taikohitcircle)"))
                         {
                             _foundElements.Add(file);
                             _filesSize += GetFileSize(file);
@@ -451,15 +459,9 @@ namespace osu_cleaner
             }
         }
 
-
-
-
-
-
-
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            if (moveCheckBox.Checked) Directory.CreateDirectory(directoryPath.Text + "Cleaned");
+            if (moveCheckBox.Checked) Directory.CreateDirectory(Path.Combine(directoryPath.Text, "Cleaned"));
             FindProgressBar.Show();
             _delWorker.RunWorkerAsync();
         }
@@ -472,7 +474,7 @@ namespace osu_cleaner
 
             int totalToDelete = delete.Count;
             int current = 0;
-            
+
             foreach (string file in delete)
             {
                 try
@@ -485,7 +487,7 @@ namespace osu_cleaner
                         FileInfo fileInfo = new FileInfo(file);
                         if (fileInfo.Directory != null)
                         {
-                            string relativePath = fileInfo.Directory.FullName.Replace(directoryPath.Text + "Songs", directoryPath.Text + "Cleaned");
+                            string relativePath = fileInfo.Directory.FullName.Replace(Path.Combine(directoryPath.Text, "Songs"), Path.Combine(directoryPath.Text, "Cleaned"));
                             Directory.CreateDirectory(relativePath);
                             File.Move(file, Path.Combine(relativePath, fileInfo.Name));
                         }
@@ -507,9 +509,14 @@ namespace osu_cleaner
             progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
         }
 
-        private void FindProgressBar_Click(object sender, EventArgs e)
+        private void openMoved_Click(object sender, EventArgs e)
         {
+            Process.Start(Path.Combine(directoryPath.Text, "Cleaned"));
+        }
 
+        private void lblTTCNOWeb_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tcno.co");
         }
 
         private void DeleteComplete(object sender, RunWorkerCompletedEventArgs e)
@@ -517,6 +524,7 @@ namespace osu_cleaner
             cancelButton.Visible = false;
             FindProgressBar.Value = 0;
             FindProgressBar.Hide();
+            if (moveCheckBox.Checked) openMoved.Visible = true;
         }
 
     }

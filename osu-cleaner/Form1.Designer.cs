@@ -42,8 +42,9 @@ namespace osu_cleaner
             this.tbLFooter = new System.Windows.Forms.TableLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.openMoved = new DarkUI.Controls.DarkButton();
             this.deleteButton = new DarkUI.Controls.DarkButton();
-            this.elementList = new System.Windows.Forms.CheckedListBox();
+            this.elementList = new osu_cleaner.DarkCheckedListBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.allUncommon = new DarkUI.Controls.DarkCheckBox();
             this.bloatExtraDeleteBox = new DarkUI.Controls.DarkCheckBox();
@@ -58,17 +59,18 @@ namespace osu_cleaner
             this.tbLDirectory = new System.Windows.Forms.TableLayoutPanel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.progressBarBackground = new System.Windows.Forms.Panel();
+            this.FindProgressBar = new osu_cleaner.DarkProgressBar();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.pnlFindCancel = new System.Windows.Forms.Panel();
             this.findButton = new DarkUI.Controls.DarkButton();
             this.cancelButton = new DarkUI.Controls.DarkButton();
             this.logoBox = new System.Windows.Forms.PictureBox();
-            this.FindProgressBar = new osu_cleaner.DarkProgressBar();
             this.stripInfo = new System.Windows.Forms.StatusStrip();
             this.lblHenntix = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblTechNobo = new System.Windows.Forms.ToolStripStatusLabel();
-            this.progressBarBackground = new System.Windows.Forms.Panel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblTCNOWeb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tbLFooter.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -76,12 +78,12 @@ namespace osu_cleaner
             this.tbLDirectory.SuspendLayout();
             this.panel4.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.progressBarBackground.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.pnlFindCancel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).BeginInit();
             this.stripInfo.SuspendLayout();
-            this.progressBarBackground.SuspendLayout();
             this.SuspendLayout();
             // 
             // DeletePermanentlyCheckbox
@@ -177,6 +179,7 @@ namespace osu_cleaner
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.openMoved);
             this.panel1.Controls.Add(this.selectAllButton);
             this.panel1.Controls.Add(this.deselectAllButton);
             this.panel1.Controls.Add(this.deleteButton);
@@ -186,6 +189,20 @@ namespace osu_cleaner
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(172, 89);
             this.panel1.TabIndex = 22;
+            // 
+            // openMoved
+            // 
+            this.openMoved.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.openMoved.ImagePadding = 0;
+            this.openMoved.Location = new System.Drawing.Point(84, 32);
+            this.openMoved.Name = "openMoved";
+            this.openMoved.Padding = new System.Windows.Forms.Padding(5);
+            this.openMoved.Size = new System.Drawing.Size(75, 23);
+            this.openMoved.TabIndex = 12;
+            this.openMoved.Text = "See Files";
+            this.openMoved.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.openMoved.Visible = false;
+            this.openMoved.Click += new System.EventHandler(this.openMoved_Click);
             // 
             // deleteButton
             // 
@@ -199,11 +216,14 @@ namespace osu_cleaner
             // 
             // elementList
             // 
-            this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
+            this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(44)))));
+            this.elementList.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.elementList.CheckOnClick = true;
             this.elementList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
             this.elementList.FormattingEnabled = true;
+            this.elementList.Items.AddRange(new object[] {
+            "Sample line"});
             this.elementList.Location = new System.Drawing.Point(3, 209);
             this.elementList.Name = "elementList";
             this.elementList.Size = new System.Drawing.Size(824, 398);
@@ -370,6 +390,26 @@ namespace osu_cleaner
             this.tableLayoutPanel1.Size = new System.Drawing.Size(830, 754);
             this.tableLayoutPanel1.TabIndex = 33;
             // 
+            // progressBarBackground
+            // 
+            this.progressBarBackground.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(68)))), ((int)(((byte)(71)))), ((int)(((byte)(90)))));
+            this.progressBarBackground.Controls.Add(this.FindProgressBar);
+            this.progressBarBackground.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.progressBarBackground.Location = new System.Drawing.Point(3, 613);
+            this.progressBarBackground.Name = "progressBarBackground";
+            this.progressBarBackground.Size = new System.Drawing.Size(824, 23);
+            this.progressBarBackground.TabIndex = 28;
+            // 
+            // FindProgressBar
+            // 
+            this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
+            this.FindProgressBar.Name = "FindProgressBar";
+            this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
+            this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.FindProgressBar.TabIndex = 22;
+            this.FindProgressBar.Visible = false;
+            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
@@ -445,23 +485,13 @@ namespace osu_cleaner
             this.logoBox.TabIndex = 28;
             this.logoBox.TabStop = false;
             // 
-            // FindProgressBar
-            // 
-            this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
-            this.FindProgressBar.Name = "FindProgressBar";
-            this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
-            this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.FindProgressBar.TabIndex = 22;
-            this.FindProgressBar.Visible = false;
-            this.FindProgressBar.Click += new System.EventHandler(this.FindProgressBar_Click);
-            // 
             // stripInfo
             // 
             this.stripInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.stripInfo.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblHenntix,
-            this.lblTechNobo});
+            this.toolStripStatusLabel1,
+            this.lblTCNOWeb});
             this.stripInfo.Location = new System.Drawing.Point(0, 734);
             this.stripInfo.Name = "stripInfo";
             this.stripInfo.Size = new System.Drawing.Size(830, 20);
@@ -480,27 +510,28 @@ namespace osu_cleaner
             this.lblHenntix.Text = "Original project: henntix";
             this.lblHenntix.Click += new System.EventHandler(this.lblHenntix_Click);
             // 
-            // lblTechNobo
+            // toolStripStatusLabel1
             // 
-            this.lblTechNobo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
-            this.lblTechNobo.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.lblTechNobo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
-            this.lblTechNobo.IsLink = true;
-            this.lblTechNobo.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
-            this.lblTechNobo.Name = "lblTechNobo";
-            this.lblTechNobo.Size = new System.Drawing.Size(157, 15);
-            this.lblTechNobo.Text = "Updated && Styled by TechNobo";
-            this.lblTechNobo.Click += new System.EventHandler(this.lblTechNobo_Click);
+            this.toolStripStatusLabel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
+            this.toolStripStatusLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.toolStripStatusLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+            this.toolStripStatusLabel1.IsLink = true;
+            this.toolStripStatusLabel1.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(157, 15);
+            this.toolStripStatusLabel1.Text = "Updated && Styled by TechNobo";
             // 
-            // progressBarBackground
+            // lblTCNOWeb
             // 
-            this.progressBarBackground.Controls.Add(this.FindProgressBar);
-            this.progressBarBackground.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBarBackground.Location = new System.Drawing.Point(3, 613);
-            this.progressBarBackground.Name = "progressBarBackground";
-            this.progressBarBackground.BackColor = Color.FromArgb(68, 71, 90);
-            this.progressBarBackground.Size = new System.Drawing.Size(824, 23);
-            this.progressBarBackground.TabIndex = 28;
+            this.lblTCNOWeb.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
+            this.lblTCNOWeb.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.lblTCNOWeb.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+            this.lblTCNOWeb.IsLink = true;
+            this.lblTCNOWeb.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+            this.lblTCNOWeb.Name = "lblTCNOWeb";
+            this.lblTCNOWeb.Size = new System.Drawing.Size(91, 15);
+            this.lblTCNOWeb.Text = "tcno.co (Website)";
+            this.lblTCNOWeb.Click += new System.EventHandler(this.lblTTCNOWeb_Click);
             // 
             // MainApp
             // 
@@ -512,7 +543,7 @@ namespace osu_cleaner
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(846, 442);
             this.Name = "MainApp";
-            this.Text = "osu!Cleaner v2.0 (TechNobo)";
+            this.Text = "cln! (osu!Cleaner by TechNobo)";
             this.Load += new System.EventHandler(this.MainApp_Load);
             this.tbLFooter.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
@@ -525,13 +556,13 @@ namespace osu_cleaner
             this.panel4.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.progressBarBackground.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
             this.pnlFindCancel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).EndInit();
             this.stripInfo.ResumeLayout(false);
             this.stripInfo.PerformLayout();
-            this.progressBarBackground.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -549,7 +580,7 @@ namespace osu_cleaner
         private System.Windows.Forms.Panel panel1;
         private DarkUI.Controls.DarkButton deleteButton;
         private osu_cleaner.DarkProgressBar FindProgressBar;
-        private System.Windows.Forms.CheckedListBox elementList;
+        private DarkCheckedListBox elementList;
         private System.Windows.Forms.Panel panel3;
         private DarkUI.Controls.DarkCheckBox allUncommon;
         private DarkUI.Controls.DarkCheckBox bloatExtraDeleteBox;
@@ -566,7 +597,7 @@ namespace osu_cleaner
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.StatusStrip stripInfo;
         private System.Windows.Forms.ToolStripStatusLabel lblHenntix;
-        private System.Windows.Forms.ToolStripStatusLabel lblTechNobo;
+        private System.Windows.Forms.ToolStripStatusLabel lblTCNOWeb;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Panel pnlFindCancel;
         private DarkUI.Controls.DarkButton findButton;
@@ -574,6 +605,8 @@ namespace osu_cleaner
         private System.Windows.Forms.PictureBox logoBox;
         private System.Windows.Forms.Panel panel4;
         private Panel progressBarBackground;
+        private DarkUI.Controls.DarkButton openMoved;
+        private ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 
