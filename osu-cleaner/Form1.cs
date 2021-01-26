@@ -1,6 +1,6 @@
 /**
 * TcNo-osu-cleaner
-* Version: 2.00
+* Version: 2.1.1
 * Original project: henntix
 * Updated & Styling: TechNobo (https://tcno.co)
 */
@@ -26,6 +26,7 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
+        private readonly string versionNumber = "2.1.1";
         private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -42,6 +43,8 @@ namespace osu_cleaner
 
         private void MainApp_Load(object sender, EventArgs e)
         {
+            this.Text = "cln! (osu!Cleaner by TechNobo) v" + versionNumber;
+
             directoryPath.Text = GetOsuPath();
             _worker = new BackgroundWorker()
             {
