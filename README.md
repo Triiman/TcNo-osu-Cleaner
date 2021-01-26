@@ -1,3 +1,4 @@
+
 <p align="center">
   <a href="https://tcno.co/">
     <img src="/img/banner.png"></a>
@@ -25,9 +26,24 @@ Lots of changes and improvements since the original 1.0 henntix release. Enjoy t
 
 If you are using a SSD, you will be happy! Deleting those elements will save your disk space even by few gigabytes. You can choose what to delete: videos, storyboards, beatmap skins, backgrounds and hitsounds. You can also choose to move those files instead of permanent purge.
 
+### How does it work?
+After either guessing or being told your osu! directory, it will take the options you give it and search for relative files. This lets you pull unused images and sounds out of song packs, as well as other "pointless" files, that you may choose not to use or already ignore because you have a custom skin/sounds active. You'd be surprised how much junk is just lying around in your folder!
+
+## Required runtimes (Download and install):
+**- Requires Microsoft .NET Framework 4.5.2 Runtime:** [Web Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net452-web-installer), [Offline Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net452-offline-installer), [Other languages](https://dotnet.microsoft.com/download/dotnet-framework/net452)
+
+**Running the program:**
+After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo/TcNo-osu-Cleaner/releases) page, extract everything to a folder of your choice and run `TcNo-osu-Cleaner.exe`
+
 ## Download
 ### Latest release: v2.0 (26.01.2021) [Download here!](https://github.com/TcNobo/osu-cleaner/releases/tag/2.0)
 
+
+### Screenshots:
+<p>
+  <img alt="Main window - Mid-scan" src="/img/screenshot1.png">
+  <img alt="main window - Selected files to purge" src="/img/screenshot2.png">
+</p>
 
 ## License: The MIT License (MIT)
 
