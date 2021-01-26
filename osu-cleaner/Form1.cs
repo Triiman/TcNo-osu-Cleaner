@@ -11,11 +11,15 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using DarkUI.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
+using osu_cleaner;
 using osu_cleaner.Properties;
 
 namespace osu_cleaner
@@ -29,7 +33,7 @@ namespace osu_cleaner
 
         // Context menu
         private string _selectedMenuItem;
-        private BackgroundWorker _worker, _delWorker;
+        private BackgroundWorker _worker, _delWorker, _listUpdater;
 
         public MainApp()
         {
@@ -39,19 +43,31 @@ namespace osu_cleaner
         private void MainApp_Load(object sender, EventArgs e)
         {
             directoryPath.Text = GetOsuPath();
-            _worker = new BackgroundWorker();
+            _worker = new BackgroundWorker()
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
             _worker.DoWork += FindElements;
             _worker.ProgressChanged += ProgressBar;
             _worker.RunWorkerCompleted += FindComplete;
-            _worker.WorkerReportsProgress = true;
-            _worker.WorkerSupportsCancellation = true;
 
-            _delWorker = new BackgroundWorker();
+            _delWorker = new BackgroundWorker()
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
             _delWorker.DoWork += DeleteElements;
             _delWorker.ProgressChanged += ProgressBar;
             _delWorker.RunWorkerCompleted += DeleteComplete;
-            _delWorker.WorkerReportsProgress = true;
-            _delWorker.WorkerSupportsCancellation = true;
+
+            _listUpdater = new BackgroundWorker()
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
+            _listUpdater.DoWork += ListboxUpdater;
+            _listUpdater.RunWorkerCompleted += ListboxUpdateFinal;
 
             // Context menu
             var tsOpenFile = new ToolStripMenuItem {Text = "Open file"};
@@ -476,6 +492,8 @@ namespace osu_cleaner
 
         private void DeleteElements(object sender, DoWorkEventArgs e)
         {
+            _listUpdater.RunWorkerAsync();
+
             var delete = new List<string>();
             foreach (string file in elementList.CheckedItems
             ) //adding items to temporary collection to let me delete items from on-screen list
@@ -519,7 +537,10 @@ namespace osu_cleaner
                 }
 
                 // Prevent cross-thread errors
-                elementList.Invoke(() => { elementList.Items.Remove(file); });
+                //elementList.Invoke(() => { elementList.Items.Remove(file); }); // This flickers A LOT!
+                //elementList.Invoke(() => { elementList.BeginUpdate(); elementList.Items.Remove(file); elementList.EndUpdate(); }); // This flickers A LOT!
+                QueueRemoveString(file);
+
                 filesSizeLabel.Invoke(() =>
                 {
                     filesSizeLabel.Text = "Found: " + Math.Round((double) _filesSize / 1048576, 4) + " MB";
@@ -530,7 +551,71 @@ namespace osu_cleaner
 
             _delWorker.ReportProgress(100);
             progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
+            if (_listUpdater.IsBusy) _listUpdater.CancelAsync();
         }
+
+        private List<string> queueRemovedItems = new List<string>();
+        private readonly Mutex m = new Mutex();
+
+        private void QueueRemoveString(string toRemove)
+        {
+            m.WaitOne();
+            try
+            {
+                queueRemovedItems.Add(toRemove);
+            }
+            finally {
+                m.ReleaseMutex();
+            }
+        }
+
+        // Loop to update the list only once a second while deleting
+        private void ListboxUpdater(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = (BackgroundWorker)sender;
+            while (!worker.CancellationPending)
+            {
+                UpdateListbox();
+                Thread.Sleep(10);
+            }
+        }
+        // Final update for the listbox after it stops
+        private void ListboxUpdateFinal(object sender, RunWorkerCompletedEventArgs e)
+        {
+            UpdateListbox();
+        }
+
+        List<string> currentQueue = new List<string>();
+        private void UpdateListbox()
+        {
+            m.WaitOne();
+            try
+            {
+                if (queueRemovedItems != null && queueRemovedItems.Count > 0)
+                {
+                    currentQueue = queueRemovedItems.ToList();
+                    queueRemovedItems.Clear();
+                }
+            }
+            finally
+            {
+                m.ReleaseMutex();
+            }
+
+            if (currentQueue != null && currentQueue.Count > 0)
+            {
+                elementList.Invoke(() => { elementList.BeginUpdate(); });
+                foreach (string s in currentQueue)
+                {
+                    elementList.Invoke(() => { elementList.Items.Remove(s); });
+                }
+
+                elementList.Invoke(() => { elementList.EndUpdate(); });
+
+                Thread.Sleep(240);
+            }
+        }
+
 
         private void openMoved_Click(object sender, EventArgs e)
         {

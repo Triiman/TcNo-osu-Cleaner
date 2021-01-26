@@ -35,32 +35,39 @@ namespace osu_cleaner
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            BufferedGraphicsContext ctx = new BufferedGraphicsContext();
+            BufferedGraphics bg = ctx.Allocate(e.Graphics, e.ClipRectangle);
+
             var progress = (float) (Value / (double) Maximum);
             if (progress <= 0.95) // Prevents blurry progress bar freezing at end
             {
                 LinearGradientBrush brush = null;
                 var bounds = new Rectangle(0, 0, Width, Height);
 
-                var bg = Color.FromArgb(68, 71, 90);
-                var fg = Color.FromArgb(255, 128, 191);
-                brush = new LinearGradientBrush(new Point(0, 0), new Point(bounds.Width, 0), fg, bg);
+                var bgc = Color.FromArgb(68, 71, 90);
+                var fgc = Color.FromArgb(255, 128, 191);
+                brush = new LinearGradientBrush(new Point(0, 0), new Point(bounds.Width, 0), fgc, bgc);
 
                 var cblend = new ColorBlend(3);
-                cblend.Colors = new Color[4] {fg, fg, bg, bg};
+                cblend.Colors = new Color[4] {fgc, fgc, bgc, bgc};
                 cblend.Positions = new float[4] {0f, progress, progress, 1f};
 
                 brush.InterpolationColors = cblend;
 
-                e.Graphics.FillRectangle(brush, 0, 0, bounds.Width, bounds.Height);
+                bg.Graphics.FillRectangle(brush, 0, 0, bounds.Width, bounds.Height);
             }
             else
             {
                 using (var b = new SolidBrush(Color.FromArgb(255, 128, 191)))
                 {
                     var boxRect = new Rectangle(0, 0, Width, Height);
-                    e.Graphics.FillRectangle(b, boxRect);
+                    bg.Graphics.FillRectangle(b, boxRect);
                 }
             }
+            
+            bg.Render(e.Graphics);
+            bg.Dispose();
+            ctx.Dispose();
         }
     }
 
@@ -68,9 +75,18 @@ namespace osu_cleaner
     {
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
+            BufferedGraphicsContext ctx = new BufferedGraphicsContext();
+            BufferedGraphics bg = ctx.Allocate(e.Graphics, e.Bounds);
+            // Draw element background
+            using (var b = new SolidBrush(Color.FromArgb(34, 33, 44)))
+            {
+                bg.Graphics.FillRectangle(b, e.Bounds);
+            }
+
+
             if (e.Index >= 0)
             {
-                var checkSize = CheckBoxRenderer.GetGlyphSize(e.Graphics, CheckBoxState.MixedNormal);
+                var checkSize = CheckBoxRenderer.GetGlyphSize(bg.Graphics, CheckBoxState.MixedNormal);
                 var dx = (e.Bounds.Height - checkSize.Width) / 2;
                 e.DrawBackground();
                 var isChecked = GetItemChecked(e.Index);
@@ -107,20 +123,20 @@ namespace osu_cleaner
 
                 using (var b = new SolidBrush(Colors.GreyBackground))
                 {
-                    e.Graphics.FillRectangle(b, rect);
+                    bg.Graphics.FillRectangle(b, rect);
                 }
 
                 using (var p = new Pen(borderColor))
                 {
                     var boxRect = new Rectangle(rect.X, rect.Y, 13, 13);
-                    e.Graphics.DrawRectangle(p, boxRect);
+                    bg.Graphics.DrawRectangle(p, boxRect);
                 }
 
                 if (isChecked)
                     using (var b = new SolidBrush(fillColor))
                     {
                         var boxRect = new Rectangle(rect.X + 2, rect.Y + 2, 10, 10);
-                        e.Graphics.FillRectangle(b, boxRect);
+                        bg.Graphics.FillRectangle(b, boxRect);
                     }
 
                 using (var b = new SolidBrush(textColor))
@@ -136,11 +152,15 @@ namespace osu_cleaner
                 {
                     using (Brush brush = new SolidBrush(isChecked ? Color.FromArgb(255, 128, 191) : ForeColor))
                     {
-                        e.Graphics.DrawString(Items[e.Index].ToString(), Font, brush,
+                        bg.Graphics.DrawString(Items[e.Index].ToString(), Font, brush,
                             new Rectangle(e.Bounds.Height + 2, e.Bounds.Top, e.Bounds.Width - e.Bounds.Height,
                                 e.Bounds.Height), sf);
                     }
                 }
+                
+                bg.Render(e.Graphics);
+                bg.Dispose();
+                ctx.Dispose();
             }
         }
     }
