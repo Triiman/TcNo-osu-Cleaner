@@ -42,7 +42,7 @@ After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo
 </p>
 
 ## License: The MIT License (MIT)
-
+Copyright for portions of [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [henntix](https://github.com/henntix/), 2016 as part of [osu-cleaner](https://github.com/henntix/osu-cleaner). All other copyright for [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [Wesley Pyburn (TechNobo)](https://github.com/TcNobo/)
 
 > Contributors are appreciated. If you want to contribute and add something, fork it and send me a pull request.
 
@@ -57,3 +57,9 @@ After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo
 ## Known Issues
 * (Since 1.0) Some storyboard elements are not deleted due to not being used on actual storyboard. This cannot be easily fixed due to storyboard elements finding approach. This issue could be fixed by implementing *"unused elements cleaner"* which will delete all files except \*osu, audio files and whitelisted elements mentioned above, selected by user
 * (Since 1.0) \*.osb files are not deleted. 
+
+#### Disclaimer
+All trademarks and materials are property of their respective owners and their licensors.<br>
+This project is not affiliated with "osu!" or "ppy" or "Peppy".<br>
+I am not responsible for the contents of external links.<br>
+USE THIS SOFTWARE AT YOUR OWN RISK. I AM NOT RESPONSIBLE FOR ANY DAMAGES IF YOU CHOOSE TO USE THIS SOFTWARE. COMPONENTS ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND TO THE FULLEST EXTENT PERMITTED BY LAW, AND I EXPRESSLY DISCLAIM ANY AND ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED.
