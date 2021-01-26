@@ -1,5 +1,5 @@
 /**
-* osu-cleaner
+* TcNo-osu-cleaner
 * Version: 2.00
 * Original project: henntix
 * Updated & Styling: TechNobo (https://tcno.co)
@@ -423,12 +423,12 @@ namespace osu_cleaner
 
         private void lblTechNobo_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/TcNobo/osu-cleaner");
+            Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
         }
 
         private void lblHenntix_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/henntix/osu-cleaner");
+            Process.Start("https://github.com/henntix/osu-Cleaner");
         }
 
         // Context menu
@@ -549,7 +549,7 @@ namespace osu_cleaner
 
         private void logoBox_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/TcNobo/osu-cleaner");
+            Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
         }
 
         private void logoBox_MouseLeave(object sender, EventArgs e)
