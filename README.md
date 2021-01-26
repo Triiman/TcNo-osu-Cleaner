@@ -16,7 +16,7 @@
 </p>
                                                                                                                                   
 <p align="center"><a target="_blank" href="https://github.com/TcNobo/osu-cleaner/releases/latest">
-  <img alt="JetBrains Support - Open Source License" src="/img/btnDownload.png" height=70"></a></p>
+  <img alt="Download button" src="/img/btnDownload.png" height=70"></a></p>
 
 
 Small tool, written in C#, to clean unused elements from beatmaps.
@@ -34,10 +34,6 @@ After either guessing or being told your osu! directory, it will take the option
 
 **Running the program:**
 After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo/TcNo-osu-Cleaner/releases) page, extract everything to a folder of your choice and run `TcNo-osu-Cleaner.exe`
-
-## Download
-### Latest release: v2.0 (26.01.2021) [Download here!](https://github.com/TcNobo/osu-cleaner/releases/tag/2.0)
-
 
 ### Screenshots:
 <p>
