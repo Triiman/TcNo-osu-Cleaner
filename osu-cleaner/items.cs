@@ -77,7 +77,7 @@ namespace osu_cleaner
         {
             if (e.Index >= 0)
             {
-                Size checkSize = CheckBoxRenderer.GetGlyphSize(e.Graphics, System.Windows.Forms.VisualStyles.CheckBoxState.MixedNormal);
+                Size checkSize = CheckBoxRenderer.GetGlyphSize(e.Graphics, CheckBoxState.MixedNormal);
                 int dx = (e.Bounds.Height - checkSize.Width) / 2;
                 e.DrawBackground();
                 bool isChecked = GetItemChecked(e.Index);
