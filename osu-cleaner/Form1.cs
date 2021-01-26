@@ -625,19 +625,18 @@ namespace osu_cleaner
             Process.Start(Path.Combine(directoryPath.Text, "Cleaned"));
         }
 
-        private void lblTTCNOWeb_Click(object sender, EventArgs e)
+        private void lblTCNOWeb_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://tcno.co");
         }
-
-        private void tblLogoButtons_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void logoBox_Click(object sender, EventArgs e)
+        private void lblTechNobo_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
+        }
+
+        private void lblHenntix_MouseDown(object sender, MouseEventArgs e)
+        {
+            Process.Start("https://github.com/henntix/osu-Cleaner");
         }
 
         private void logoBox_MouseLeave(object sender, EventArgs e)
@@ -647,6 +646,7 @@ namespace osu_cleaner
 
         private void logoBox_MouseDown(object sender, MouseEventArgs e)
         {
+            Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
             logoBox.Image = Resources.osu_cleaner_logo_256_click;
         }
 
@@ -660,6 +660,7 @@ namespace osu_cleaner
             var tssl = (ToolStripStatusLabel)sender;
             tssl.LinkColor = Color.FromArgb(138, 255, 128);
         }
+
 
         private void linkLabel_MouseLeave(object sender, EventArgs e)
         {

@@ -436,7 +436,6 @@ namespace osu_cleaner
             this.tblLogoButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             this.tblLogoButtons.Size = new System.Drawing.Size(156, 179);
             this.tblLogoButtons.TabIndex = 26;
-            this.tblLogoButtons.Paint += new System.Windows.Forms.PaintEventHandler(this.tblLogoButtons_Paint);
             // 
             // pnlFindCancel
             // 
@@ -482,7 +481,6 @@ namespace osu_cleaner
             this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.logoBox.TabIndex = 28;
             this.logoBox.TabStop = false;
-            this.logoBox.Click += new System.EventHandler(this.logoBox_Click);
             this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.logoBox_MouseDown);
             this.logoBox.MouseEnter += new System.EventHandler(this.logoBox_HoverImage);
             this.logoBox.MouseLeave += new System.EventHandler(this.logoBox_MouseLeave);
@@ -527,7 +525,7 @@ namespace osu_cleaner
             this.lblHenntix.Name = "lblHenntix";
             this.lblHenntix.Size = new System.Drawing.Size(117, 15);
             this.lblHenntix.Text = "Original project: henntix";
-            this.lblHenntix.Click += new System.EventHandler(this.lblHenntix_Click);
+            this.lblHenntix.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblHenntix_MouseDown);
             this.lblHenntix.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
             this.lblHenntix.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
@@ -541,7 +539,7 @@ namespace osu_cleaner
             this.lblTechNobo.Name = "lblTechNobo";
             this.lblTechNobo.Size = new System.Drawing.Size(157, 15);
             this.lblTechNobo.Text = "Updated && Styled by TechNobo";
-            this.lblTechNobo.Click += new System.EventHandler(this.lblTechNobo_Click);
+            this.lblTechNobo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblTechNobo_MouseDown);
             this.lblTechNobo.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
             this.lblTechNobo.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
@@ -555,7 +553,7 @@ namespace osu_cleaner
             this.lblTCNOWeb.Name = "lblTCNOWeb";
             this.lblTCNOWeb.Size = new System.Drawing.Size(91, 15);
             this.lblTCNOWeb.Text = "tcno.co (Website)";
-            this.lblTCNOWeb.Click += new System.EventHandler(this.lblTTCNOWeb_Click);
+            this.lblTCNOWeb.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblTCNOWeb_MouseDown);
             this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
             this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
