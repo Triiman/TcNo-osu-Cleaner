@@ -1,9 +1,20 @@
-/**
-* TcNo-osu-cleaner
-* Version: 2.2
-* Original project: henntix
-* Updated & Styling: TechNobo (https://tcno.co)
-*/
+// cln! TcNo-osu-Cleaner - A small tool, written in C#, to clean unused elements from beatmaps.
+// Copyright (C) 2021 TechNobo (Wesley Pyburn)
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// A fork from henntix's osu-cleaner
+// https://github.com/henntix/osu-cleaner
+// Originally licensed under The MIT License (MIT)
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +23,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -21,7 +31,6 @@ using DarkUI.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using Monitor.Core.Utilities;
-using osu_cleaner;
 using osu_cleaner.Properties;
 using SymbolicLinkSupport;
 
