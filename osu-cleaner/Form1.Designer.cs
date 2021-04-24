@@ -42,6 +42,7 @@ namespace osu_cleaner
             this.tbLFooter = new System.Windows.Forms.TableLayoutPanel();
             this.pnlBottomInfo = new System.Windows.Forms.Panel();
             this.pnlBottomButtons = new System.Windows.Forms.Panel();
+            this.symlinkButton = new DarkUI.Controls.DarkButton();
             this.openMoved = new DarkUI.Controls.DarkButton();
             this.deleteButton = new DarkUI.Controls.DarkButton();
             this.pnlCheckboxes = new System.Windows.Forms.Panel();
@@ -72,6 +73,7 @@ namespace osu_cleaner
             this.lblHenntix = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTechNobo = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTCNOWeb = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btnReplaceMissing = new DarkUI.Controls.DarkButton();
             this.tbLFooter.SuspendLayout();
             this.pnlBottomInfo.SuspendLayout();
             this.pnlBottomButtons.SuspendLayout();
@@ -180,6 +182,7 @@ namespace osu_cleaner
             // 
             // pnlBottomButtons
             // 
+            this.pnlBottomButtons.Controls.Add(this.symlinkButton);
             this.pnlBottomButtons.Controls.Add(this.openMoved);
             this.pnlBottomButtons.Controls.Add(this.selectAllButton);
             this.pnlBottomButtons.Controls.Add(this.deselectAllButton);
@@ -190,6 +193,16 @@ namespace osu_cleaner
             this.pnlBottomButtons.Name = "pnlBottomButtons";
             this.pnlBottomButtons.Size = new System.Drawing.Size(172, 89);
             this.pnlBottomButtons.TabIndex = 22;
+            // 
+            // symlinkButton
+            // 
+            this.symlinkButton.Location = new System.Drawing.Point(3, 61);
+            this.symlinkButton.Name = "symlinkButton";
+            this.symlinkButton.Padding = new System.Windows.Forms.Padding(5);
+            this.symlinkButton.Size = new System.Drawing.Size(156, 23);
+            this.symlinkButton.TabIndex = 13;
+            this.symlinkButton.Text = "Move song files (Symlink)";
+            this.symlinkButton.Click += new System.EventHandler(this.symlinkButton_Click);
             // 
             // openMoved
             // 
@@ -217,6 +230,7 @@ namespace osu_cleaner
             // 
             // pnlCheckboxes
             // 
+            this.pnlCheckboxes.Controls.Add(this.btnReplaceMissing);
             this.pnlCheckboxes.Controls.Add(this.lblPrompt);
             this.pnlCheckboxes.Controls.Add(this.allUncommon);
             this.pnlCheckboxes.Controls.Add(this.bloatExtraDeleteBox);
@@ -557,6 +571,16 @@ namespace osu_cleaner
             this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
             this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
             // 
+            // btnReplaceMissing
+            // 
+            this.btnReplaceMissing.Location = new System.Drawing.Point(370, 153);
+            this.btnReplaceMissing.Name = "btnReplaceMissing";
+            this.btnReplaceMissing.Padding = new System.Windows.Forms.Padding(5);
+            this.btnReplaceMissing.Size = new System.Drawing.Size(283, 23);
+            this.btnReplaceMissing.TabIndex = 29;
+            this.btnReplaceMissing.Text = "Replace missing images with black images";
+            this.btnReplaceMissing.Click += new System.EventHandler(this.btnReplaceMissing_Click);
+            // 
             // MainApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -632,6 +656,8 @@ namespace osu_cleaner
         private DarkUI.Controls.DarkButton openMoved;
         private ToolStripStatusLabel lblTechNobo;
         private DarkUI.Controls.DarkLabel lblPrompt;
+        private DarkUI.Controls.DarkButton symlinkButton;
+        private DarkUI.Controls.DarkButton btnReplaceMissing;
     }
 }
 

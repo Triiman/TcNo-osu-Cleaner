@@ -1,6 +1,6 @@
 /**
 * TcNo-osu-cleaner
-* Version: 2.1.1
+* Version: 2.2
 * Original project: henntix
 * Updated & Styling: TechNobo (https://tcno.co)
 */
@@ -13,20 +13,23 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using DarkUI.Forms;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
+using Monitor.Core.Utilities;
 using osu_cleaner;
 using osu_cleaner.Properties;
+using SymbolicLinkSupport;
 
 namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-        private readonly string versionNumber = "2.1.1";
+        private readonly string versionNumber = "2.2";
         private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -34,7 +37,7 @@ namespace osu_cleaner
 
         // Context menu
         private string _selectedMenuItem;
-        private BackgroundWorker _worker, _delWorker, _listUpdater;
+        private BackgroundWorker _worker, _delWorker, _listUpdater, _pixelWorker;
 
         public MainApp()
         {
@@ -72,6 +75,15 @@ namespace osu_cleaner
             _listUpdater.DoWork += ListboxUpdater;
             _listUpdater.RunWorkerCompleted += ListboxUpdateFinal;
 
+            _pixelWorker = new BackgroundWorker()
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
+            _pixelWorker.DoWork += PixelWorkerWork;
+            _pixelWorker.ProgressChanged += BackgroundReplacerProgressBar;
+            _pixelWorker.RunWorkerCompleted += PixelWorkerWorkComplete;
+
             // Context menu
             var tsOpenFile = new ToolStripMenuItem {Text = "Open file"};
             tsOpenFile.Click += tsOpenFile_Click;
@@ -87,11 +99,13 @@ namespace osu_cleaner
 
         private void directorySelectButton_Click(object sender, EventArgs e)
         {
-            var folder = new FolderBrowserDialog();
-            folder.ShowNewFolderButton = false;
-            folder.RootFolder = Environment.SpecialFolder.MyComputer;
-            folder.Description = "Select an osu! root directory:";
-            folder.SelectedPath = directoryPath.Text;
+            var folder = new FolderBrowserDialog
+            {
+                ShowNewFolderButton = false,
+                RootFolder = Environment.SpecialFolder.MyComputer,
+                Description = "Select an osu! root directory:",
+                SelectedPath = directoryPath.Text
+            };
             var path = folder.ShowDialog();
             if (path == DialogResult.OK)
                 //check if osu!.exe is present
@@ -131,6 +145,8 @@ namespace osu_cleaner
                 _worker.CancelAsync();
             if (_delWorker.IsBusy)
                 _delWorker.CancelAsync();
+            if (_pixelWorker.IsBusy)
+                _pixelWorker.CancelAsync();
         }
 
         private void selectAllButton_Click(object sender, EventArgs e)
@@ -199,7 +215,7 @@ namespace osu_cleaner
             {
                 MessageBox.Show("Can not find Songs directory in osu! folder.", "Fatal error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                throw;
+                return;
             }
 
             Console.WriteLine(folderCount);
@@ -330,6 +346,11 @@ namespace osu_cleaner
             filesSizeLabel.Text = "Found: " + Math.Round((double) _filesSize / 1048576, 4) + " MB";
         }
 
+        private void BackgroundReplacerProgressBar(object sender, ProgressChangedEventArgs e)
+        {
+            FindProgressBar.Value = e.ProgressPercentage;
+        }
+
         private void FindComplete(object sender, RunWorkerCompletedEventArgs e)
         {
             progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123);
@@ -342,23 +363,20 @@ namespace osu_cleaner
             FindProgressBar.Hide();
         }
 
-        private string GetOsuPath()
+        private static string GetOsuPath()
         {
-            using (var osureg = Registry.ClassesRoot.OpenSubKey("osu\\DefaultIcon"))
+            using (var osuReg = Registry.ClassesRoot.OpenSubKey("osu\\DefaultIcon"))
             {
-                if (osureg != null)
-                {
-                    var osukey = osureg.GetValue(null).ToString();
-                    var osupath = osukey.Remove(0, 1);
-                    osupath = osupath.Remove(osupath.Length - 11);
-                    return osupath;
-                }
+                if (osuReg == null) return "";
+                var osuKey = osuReg.GetValue(null).ToString();
+                var osuPath = osuKey.Remove(0, 1);
+                osuPath = osuPath.Remove(osuPath.Length - 11);
+                return osuPath;
 
-                return "";
             }
         }
 
-        private string GetBgPath(string path)
+        private static string GetBgPath(string path, bool precedeWithSlash = true)
         {
             try
             {
@@ -372,7 +390,7 @@ namespace osu_cleaner
                             var items = line.Split(',');
                             if (items[0] == "0")
                             {
-                                var tmp = "\\" + items[2].Replace("\"", string.Empty);
+                                var tmp = (precedeWithSlash ? "\\" : "") + items[2].Replace("\"", string.Empty);
                                 return tmp;
                             }
                         }
@@ -386,7 +404,7 @@ namespace osu_cleaner
             }
         }
 
-        private List<string> GetSbElements(string file)
+        private static IEnumerable<string> GetSbElements(string file)
         {
             var sbElements = new List<string>();
             using (var sbFile = File.OpenText(file))
@@ -395,20 +413,18 @@ namespace osu_cleaner
                 while ((line = sbFile.ReadLine()) != null)
                 {
                     var items = line.Split(',');
-                    if (items[0] == "Sprite")
-                    {
-                        var tmp = "\\" + items[3].Replace("\"", string.Empty);
-                        tmp = tmp.Replace("/", "\\");
-                        if (!sbElements.Contains(tmp))
-                            sbElements.Add(tmp);
-                    }
+                    if (items[0] != "Sprite") continue;
+                    var tmp = "\\" + items[3].Replace("\"", string.Empty);
+                    tmp = tmp.Replace("/", "\\");
+                    if (!sbElements.Contains(tmp))
+                        sbElements.Add(tmp);
                 }
             }
 
             return sbElements;
         }
 
-        private long GetFileSize(string path)
+        private static long GetFileSize(string path)
         {
             try
             {
@@ -460,7 +476,7 @@ namespace osu_cleaner
         {
             if (!File.Exists(_selectedMenuItem)) return;
             var fileFullPath = Path.GetFullPath(_selectedMenuItem);
-            Process.Start("explorer.exe", string.Format("/select,\"{0}\"", fileFullPath));
+            Process.Start("explorer.exe", $"/select,\"{fileFullPath}\"");
         }
 
         private void tsOpenFile_Click(object sender, EventArgs e)
@@ -557,7 +573,7 @@ namespace osu_cleaner
             if (_listUpdater.IsBusy) _listUpdater.CancelAsync();
         }
 
-        private List<string> queueRemovedItems = new List<string>();
+        private readonly List<string> _queueRemovedItems = new List<string>();
         private readonly Mutex m = new Mutex();
 
         private void QueueRemoveString(string toRemove)
@@ -565,7 +581,7 @@ namespace osu_cleaner
             m.WaitOne();
             try
             {
-                queueRemovedItems.Add(toRemove);
+                _queueRemovedItems.Add(toRemove);
             }
             finally {
                 m.ReleaseMutex();
@@ -588,16 +604,16 @@ namespace osu_cleaner
             UpdateListbox();
         }
 
-        List<string> currentQueue = new List<string>();
+        List<string> _currentQueue = new List<string>();
         private void UpdateListbox()
         {
             m.WaitOne();
             try
             {
-                if (queueRemovedItems != null && queueRemovedItems.Count > 0)
+                if (_queueRemovedItems != null && _queueRemovedItems.Count > 0)
                 {
-                    currentQueue = queueRemovedItems.ToList();
-                    queueRemovedItems.Clear();
+                    _currentQueue = _queueRemovedItems.ToList();
+                    _queueRemovedItems.Clear();
                 }
             }
             finally
@@ -605,18 +621,16 @@ namespace osu_cleaner
                 m.ReleaseMutex();
             }
 
-            if (currentQueue != null && currentQueue.Count > 0)
+            if (_currentQueue == null || _currentQueue.Count <= 0) return;
+            elementList.Invoke(() => { elementList.BeginUpdate(); });
+            foreach (var s in _currentQueue)
             {
-                elementList.Invoke(() => { elementList.BeginUpdate(); });
-                foreach (string s in currentQueue)
-                {
-                    elementList.Invoke(() => { elementList.Items.Remove(s); });
-                }
-
-                elementList.Invoke(() => { elementList.EndUpdate(); });
-
-                Thread.Sleep(240);
+                elementList.Invoke(() => { elementList.Items.Remove(s); });
             }
+
+            elementList.Invoke(() => { elementList.EndUpdate(); });
+
+            Thread.Sleep(240);
         }
 
 
@@ -661,7 +675,6 @@ namespace osu_cleaner
             tssl.LinkColor = Color.FromArgb(138, 255, 128);
         }
 
-
         private void linkLabel_MouseLeave(object sender, EventArgs e)
         {
             var tssl = (ToolStripStatusLabel)sender;
@@ -675,6 +688,136 @@ namespace osu_cleaner
             FindProgressBar.Hide();
             if (moveCheckBox.Checked) openMoved.Visible = true;
         }
+
+
+
+        private void symlinkButton_Click(object sender, EventArgs e)
+        {
+            var songsFolder = Path.Combine(directoryPath.Text, "Songs");
+            var isSymlink = new DirectoryInfo(songsFolder).IsSymbolicLink();
+            var isJunction = JunctionPoint.Exists(songsFolder);
+            if (isSymlink || isJunction)
+            {
+                MessageBox.Show(this, "The Songs folder is already a symlink/junction!", "Notice!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                return;
+            }
+
+            var folder = new FolderBrowserDialog
+            {
+                ShowNewFolderButton = false,
+                RootFolder = Environment.SpecialFolder.MyComputer,
+                Description = "Select a folder to move the Songs folder to (Folder, not files within):",
+                SelectedPath = directoryPath.Text
+            };
+            var path = folder.ShowDialog();
+            if (path == DialogResult.OK)
+            {
+                var fo = new InteropSHFileOperation
+                {
+                    wFunc = InteropSHFileOperation.FO_Func.FO_MOVE,
+                    fFlags =
+                    {
+                        FOF_ALLOWUNDO = false,
+                        FOF_NOCONFIRMATION = true,
+                        FOF_NOERRORUI = false,
+                        FOF_SILENT = false
+                    },
+                    pFrom = songsFolder,
+                    pTo = Path.Combine(folder.SelectedPath, "Songs")
+                };
+                if (fo.Execute())
+                {
+                    // Success
+                    JunctionPoint.Create(songsFolder, Path.Combine(folder.SelectedPath, "Songs"), true);
+                    MessageBox.Show(this, "Moved files, and created symlink junction correctly!", "Success!",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                }
+                else
+                {
+                    MessageBox.Show(this, "Failed to copy files", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error,
+                        MessageBoxDefaultButton.Button1);
+                }
+            }
+        }
+
+        private void btnReplaceMissing_Click(object sender, EventArgs e)
+        {
+            FindProgressBar.Show();
+            _pixelWorker.RunWorkerAsync();
+        }
+
+        // Loop to update the list only once a second while deleting
+        private void PixelWorkerWork(object sender, DoWorkEventArgs e)
+        {
+            int folderCount;
+            try
+            {
+                folderCount = Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")).Length;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("Can not find Songs directory in osu! folder.", "Fatal error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            Console.WriteLine(folderCount);
+            var current = 0;
+            var backgrounds = new List<string>();
+            var missingBgCount = 0;
+            foreach (var d in Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")))
+            {
+                // Collect all backgrounds
+                foreach (var file in Directory.GetFiles(d))
+                    if (Regex.IsMatch(file, "osu$"))
+                    {
+                        var bg = GetBgPath(file, false);
+                        if (bg != null && !backgrounds.Contains(Path.Combine(d, bg)))
+                        {
+                            if (File.Exists(Path.Combine(d, bg))) continue;
+                            backgrounds.Add(Path.Combine(d, bg));
+                            missingBgCount++;
+                        }
+                    }
+                if (_pixelWorker.CancellationPending) return;
+                current++;
+                _pixelWorker.ReportProgress((int)((double)current / folderCount * 100));
+                filesSizeLabel.Invoke(() => { filesSizeLabel.Text =
+                    $"(Step 1 of 2) Checked: {current} of {folderCount} folders. ({missingBgCount} missing BGs)"; });
+            }
+
+            _pixelWorker.ReportProgress(0);
+            current = 0;
+            foreach (var bg in backgrounds)
+            {
+                current++;
+                _pixelWorker.ReportProgress((int)((double)current / missingBgCount * 100));
+                filesSizeLabel.Invoke(() => { filesSizeLabel.Text = "(Step 2 of 2) Copied 1x1px images to: " + current + " of " + missingBgCount + " folders."; });
+                
+                Resources.pixel.Save(bg);
+            }
+            
+            _pixelWorker.ReportProgress(100);
+            progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
+            MessageBox.Show(
+                missingBgCount > 0
+                    ? $"Finished copying in files. {missingBgCount} ~90 byte files created.\nSaving you tons of space, and no warnings in-game :)"
+                    : "No missing backgrounds found", "Done", MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        // Final update for the listbox after it stops
+        private void PixelWorkerWorkComplete(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123);
+            foreach (var file in _foundElements)
+                elementList.Items.Add(file);
+            filesSizeLabel.Text = "Found: " + Math.Round((double)_filesSize / 1048576, 4) + " MB";
+            _foundElements.Clear();
+            cancelButton.Visible = false;
+            FindProgressBar.Value = 0;
+            FindProgressBar.Hide();
+        }
     }
 }
 
@@ -687,4 +830,178 @@ public static class ControlExtensions
         else
             action.Invoke();
     }
+}
+
+public class InteropSHFileOperation
+{
+    // http://pinvoke.net/default.aspx/shell32/SHFileOperation.html
+    public enum FO_Func : uint
+    {
+        FO_MOVE = 0x0001,
+        FO_COPY = 0x0002,
+        FO_DELETE = 0x0003,
+        FO_RENAME = 0x0004,
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 2)]
+    struct SHFILEOPSTRUCT
+    {
+        public IntPtr hwnd;
+        public FO_Func wFunc;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string pFrom;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string pTo;
+        public ushort fFlags;
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool fAnyOperationsAborted;
+        public IntPtr hNameMappings;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string lpszProgressTitle;
+
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    static extern int SHFileOperation([In, Out] ref SHFILEOPSTRUCT lpFileOp);
+
+    private SHFILEOPSTRUCT _ShFile;
+    public FILEOP_FLAGS fFlags;
+
+    public IntPtr hwnd
+    {
+        set => this._ShFile.hwnd = value;
+    }
+    public FO_Func wFunc
+    {
+        set => this._ShFile.wFunc = value;
+    }
+
+    public string pFrom
+    {
+        set => this._ShFile.pFrom = value + '\0' + '\0';
+    }
+    public string pTo
+    {
+        set => this._ShFile.pTo = value + '\0' + '\0';
+    }
+
+    public bool fAnyOperationsAborted
+    {
+        set => this._ShFile.fAnyOperationsAborted = value;
+    }
+    public IntPtr hNameMappings
+    {
+        set => this._ShFile.hNameMappings = value;
+    }
+    public string lpszProgressTitle
+    {
+        set => this._ShFile.lpszProgressTitle = value + '\0';
+    }
+
+    public InteropSHFileOperation()
+    {
+
+        this.fFlags = new FILEOP_FLAGS();
+        this._ShFile = new SHFILEOPSTRUCT();
+        this._ShFile.hwnd = IntPtr.Zero;
+        this._ShFile.wFunc = FO_Func.FO_COPY;
+        this._ShFile.pFrom = "";
+        this._ShFile.pTo = "";
+        this._ShFile.fAnyOperationsAborted = false;
+        this._ShFile.hNameMappings = IntPtr.Zero;
+        this._ShFile.lpszProgressTitle = "";
+
+    }
+
+    public bool Execute()
+    {
+        this._ShFile.fFlags = this.fFlags.Flag;
+        return SHFileOperation(ref this._ShFile) == 0;//true if no errors
+    }
+
+    public class FILEOP_FLAGS
+    {
+        [Flags]
+        private enum FILEOP_FLAGS_ENUM : ushort
+        {
+            FOF_MULTIDESTFILES = 0x0001,
+            FOF_CONFIRMMOUSE = 0x0002,
+            FOF_SILENT = 0x0004,  // don't create progress/report
+            FOF_RENAMEONCOLLISION = 0x0008,
+            FOF_NOCONFIRMATION = 0x0010,  // Don't prompt the user.
+            FOF_WANTMAPPINGHANDLE = 0x0020,  // Fill in SHFILEOPSTRUCT.hNameMappings
+            // Must be freed using SHFreeNameMappings
+            FOF_ALLOWUNDO = 0x0040,
+            FOF_FILESONLY = 0x0080,  // on *.*, do only files
+            FOF_SIMPLEPROGRESS = 0x0100,  // means don't show names of files
+            FOF_NOCONFIRMMKDIR = 0x0200,  // don't confirm making any needed dirs
+            FOF_NOERRORUI = 0x0400,  // don't put up error UI
+            FOF_NOCOPYSECURITYATTRIBS = 0x0800,  // dont copy NT file Security Attributes
+            FOF_NORECURSION = 0x1000,  // don't recurse into directories.
+            FOF_NO_CONNECTED_ELEMENTS = 0x2000,  // don't operate on connected elements.
+            FOF_WANTNUKEWARNING = 0x4000,  // during delete operation, warn if nuking instead of recycling (partially overrides FOF_NOCONFIRMATION)
+            FOF_NORECURSEREPARSE = 0x8000,  // treat reparse points as objects, not containers
+        }
+
+        public bool FOF_MULTIDESTFILES = false;
+        public bool FOF_CONFIRMMOUSE = false;
+        public bool FOF_SILENT = false;
+        public bool FOF_RENAMEONCOLLISION = false;
+        public bool FOF_NOCONFIRMATION = false;
+        public bool FOF_WANTMAPPINGHANDLE = false;
+        public bool FOF_ALLOWUNDO = false;
+        public bool FOF_FILESONLY = false;
+        public bool FOF_SIMPLEPROGRESS = false;
+        public bool FOF_NOCONFIRMMKDIR = false;
+        public bool FOF_NOERRORUI = false;
+        public bool FOF_NOCOPYSECURITYATTRIBS = false;
+        public bool FOF_NORECURSION = false;
+        public bool FOF_NO_CONNECTED_ELEMENTS = false;
+        public bool FOF_WANTNUKEWARNING = false;
+        public bool FOF_NORECURSEREPARSE = false;
+
+        public ushort Flag
+        {
+            get
+            {
+                ushort returnValue = 0;
+
+                if (this.FOF_MULTIDESTFILES)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_MULTIDESTFILES;
+                if (this.FOF_CONFIRMMOUSE)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_CONFIRMMOUSE;
+                if (this.FOF_SILENT)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_SILENT;
+                if (this.FOF_RENAMEONCOLLISION)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_RENAMEONCOLLISION;
+                if (this.FOF_NOCONFIRMATION)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCONFIRMATION;
+                if (this.FOF_WANTMAPPINGHANDLE)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_WANTMAPPINGHANDLE;
+                if (this.FOF_ALLOWUNDO)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_ALLOWUNDO;
+                if (this.FOF_FILESONLY)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_FILESONLY;
+                if (this.FOF_SIMPLEPROGRESS)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_SIMPLEPROGRESS;
+                if (this.FOF_NOCONFIRMMKDIR)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCONFIRMMKDIR;
+                if (this.FOF_NOERRORUI)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOERRORUI;
+                if (this.FOF_NOCOPYSECURITYATTRIBS)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCOPYSECURITYATTRIBS;
+                if (this.FOF_NORECURSION)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NORECURSION;
+                if (this.FOF_NO_CONNECTED_ELEMENTS)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NO_CONNECTED_ELEMENTS;
+                if (this.FOF_WANTNUKEWARNING)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_WANTNUKEWARNING;
+                if (this.FOF_NORECURSEREPARSE)
+                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NORECURSEREPARSE;
+
+                return returnValue;
+            }
+        }
+    }
+
 }

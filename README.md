@@ -41,22 +41,21 @@ After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo
   <img alt="main window - Selected files to purge" src="/img/screenshot2.png">
 </p>
 
-## License: The MIT License (MIT)
-Copyright for portions of [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [henntix](https://github.com/henntix/), 2016 as part of [osu-cleaner](https://github.com/henntix/osu-cleaner). All other copyright for [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [Wesley Pyburn (TechNobo)](https://github.com/TcNobo/)
+## License: GNU General Public License v3.0
+Copyright for portions of [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [henntix](https://github.com/henntix/), 2016 as part of [osu-cleaner](https://github.com/henntix/osu-cleaner) and under The MIT License. All other copyright for [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [Wesley Pyburn (TechNobo)](https://github.com/TcNobo/) under The GNU General Public License v3.0.
+
+Additional license information for included NuGet packages and other parts of code can be found in: [HERE](https://github.com/TcNobo/TcNo-osu-Cleaner/blob/master/osu-cleaner/Additional%20Licenses.txt) `Additional Licenses.txt`, and are copied to the build directory, as well as distributed with release versions of this software.
 
 > Contributors are appreciated. If you want to contribute and add something, fork it and send me a pull request.
 
 > If you find issues or bugs, report them via Issues page. Please also report if something has been not deleted but it should be.
 
 ## Changelog
+* v2.1 (24.04.2021) Added "Missing background" replacer and easy Songs folder moving through Junction Symlinks.
 * v2.0 (26.01.2021) Completely reskinned, updated & improved by [TechNobo](https://tcno.co).
 * v1.0 (06.11.2018) Initial release, written in 2016
 
 ---
-
-## Known Issues
-* (Since 1.0) Some storyboard elements are not deleted due to not being used on actual storyboard. This cannot be easily fixed due to storyboard elements finding approach. This issue could be fixed by implementing *"unused elements cleaner"* which will delete all files except \*osu, audio files and whitelisted elements mentioned above, selected by user
-* (Since 1.0) \*.osb files are not deleted. 
 
 #### Disclaimer
 All trademarks and materials are property of their respective owners and their licensors.<br>
