@@ -26,6 +26,8 @@ Lots of changes and improvements since the original 1.0 henntix release. Enjoy t
 
 If you are using a SSD, you will be happy! Deleting those elements will save your disk space even by few gigabytes. You can choose what to delete: videos, storyboards, beatmap skins, backgrounds and hitsounds. You can also choose to move those files instead of permanent purge.
 
+[Visit the osu! Forum post](https://osu.ppy.sh/community/forums/topics/1235910)
+
 ### How does it work?
 After either guessing or being told your osu! directory, it will take the options you give it and search for relative files. This lets you pull unused images and sounds out of song packs, as well as other "pointless" files, that you may choose not to use or already ignore because you have a custom skin/sounds active. You'd be surprised how much junk is just lying around in your folder!
 
