@@ -14,47 +14,47 @@ namespace Monitor.Core.Utilities
         /// <summary>
         /// The file or directory is not a reparse point.
         /// </summary>
-        private const int ERROR_NOT_A_REPARSE_POINT = 4390;
+        private const int ErrorNotAReparsePoint = 4390;
 
         /// <summary>
         /// The reparse point attribute cannot be set because it conflicts with an existing attribute.
         /// </summary>
-        private const int ERROR_REPARSE_ATTRIBUTE_CONFLICT = 4391;
+        private const int ErrorReparseAttributeConflict = 4391;
 
         /// <summary>
         /// The data present in the reparse point buffer is invalid.
         /// </summary>
-        private const int ERROR_INVALID_REPARSE_DATA = 4392;
+        private const int ErrorInvalidReparseData = 4392;
 
         /// <summary>
         /// The tag present in the reparse point buffer is invalid.
         /// </summary>
-        private const int ERROR_REPARSE_TAG_INVALID = 4393;
+        private const int ErrorReparseTagInvalid = 4393;
 
         /// <summary>
         /// There is a mismatch between the tag specified in the request and the tag present in the reparse point.
         /// </summary>
-        private const int ERROR_REPARSE_TAG_MISMATCH = 4394;
+        private const int ErrorReparseTagMismatch = 4394;
 
         /// <summary>
         /// Command to set the reparse point data block.
         /// </summary>
-        private const int FSCTL_SET_REPARSE_POINT = 0x000900A4;
+        private const int FsctlSetReparsePoint = 0x000900A4;
 
         /// <summary>
         /// Command to get the reparse point data block.
         /// </summary>
-        private const int FSCTL_GET_REPARSE_POINT = 0x000900A8;
+        private const int FsctlGetReparsePoint = 0x000900A8;
 
         /// <summary>
         /// Command to delete the reparse point data base.
         /// </summary>
-        private const int FSCTL_DELETE_REPARSE_POINT = 0x000900AC;
+        private const int FsctlDeleteReparsePoint = 0x000900AC;
 
         /// <summary>
         /// Reparse point tag used to identify mount points and junction points.
         /// </summary>
-        private const uint IO_REPARSE_TAG_MOUNT_POINT = 0xA0000003;
+        private const uint IoReparseTagMountPoint = 0xA0000003;
 
         /// <summary>
         /// This prefix indicates to NTFS that the path is to be treated as a non-interpreted
@@ -106,7 +106,7 @@ namespace Monitor.Core.Utilities
             Offline = 0x00001000,
             NotContentIndexed = 0x00002000,
             Encrypted = 0x00004000,
-            Write_Through = 0x80000000,
+            WRITE_THROUGH = 0x80000000,
             Overlapped = 0x40000000,
             NoBuffering = 0x20000000,
             RandomAccess = 0x10000000,
@@ -120,7 +120,7 @@ namespace Monitor.Core.Utilities
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct REPARSE_DATA_BUFFER
+        private struct ReparseDataBuffer
         {
             /// <summary>
             /// Reparse point tag. Must be a Microsoft reparse point tag.
@@ -171,8 +171,8 @@ namespace Monitor.Core.Utilities
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool DeviceIoControl(IntPtr hDevice, uint dwIoControlCode,
-            IntPtr InBuffer, int nInBufferSize,
-            IntPtr OutBuffer, int nOutBufferSize,
+            IntPtr inBuffer, int nInBufferSize,
+            IntPtr outBuffer, int nOutBufferSize,
             out int pBytesReturned, IntPtr lpOverlapped);
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -213,13 +213,13 @@ namespace Monitor.Core.Utilities
                 Directory.CreateDirectory(junctionPoint);
             }
 
-            using (SafeFileHandle handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite))
+            using (var handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite))
             {
-                byte[] targetDirBytes = Encoding.Unicode.GetBytes(NonInterpretedPathPrefix + Path.GetFullPath(targetDir));
+                var targetDirBytes = Encoding.Unicode.GetBytes(NonInterpretedPathPrefix + Path.GetFullPath(targetDir));
 
-                REPARSE_DATA_BUFFER reparseDataBuffer = new REPARSE_DATA_BUFFER();
+                var reparseDataBuffer = new ReparseDataBuffer();
 
-                reparseDataBuffer.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+                reparseDataBuffer.ReparseTag = IoReparseTagMountPoint;
                 reparseDataBuffer.ReparseDataLength = (ushort)(targetDirBytes.Length + 12);
                 reparseDataBuffer.SubstituteNameOffset = 0;
                 reparseDataBuffer.SubstituteNameLength = (ushort)targetDirBytes.Length;
@@ -228,15 +228,15 @@ namespace Monitor.Core.Utilities
                 reparseDataBuffer.PathBuffer = new byte[0x3ff0];
                 Array.Copy(targetDirBytes, reparseDataBuffer.PathBuffer, targetDirBytes.Length);
 
-                int inBufferSize = Marshal.SizeOf(reparseDataBuffer);
-                IntPtr inBuffer = Marshal.AllocHGlobal(inBufferSize);
+                var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
+                var inBuffer = Marshal.AllocHGlobal(inBufferSize);
 
                 try
                 {
                     Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
 
                     int bytesReturned;
-                    bool result = DeviceIoControl(handle.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
+                    var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlSetReparsePoint,
                         inBuffer, targetDirBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
 
                     if (!result)
@@ -267,22 +267,22 @@ namespace Monitor.Core.Utilities
                 return;
             }
 
-            using (SafeFileHandle handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite))
+            using (var handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite))
             {
-                REPARSE_DATA_BUFFER reparseDataBuffer = new REPARSE_DATA_BUFFER();
+                var reparseDataBuffer = new ReparseDataBuffer();
 
-                reparseDataBuffer.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+                reparseDataBuffer.ReparseTag = IoReparseTagMountPoint;
                 reparseDataBuffer.ReparseDataLength = 0;
                 reparseDataBuffer.PathBuffer = new byte[0x3ff0];
 
-                int inBufferSize = Marshal.SizeOf(reparseDataBuffer);
-                IntPtr inBuffer = Marshal.AllocHGlobal(inBufferSize);
+                var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
+                var inBuffer = Marshal.AllocHGlobal(inBufferSize);
                 try
                 {
                     Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
 
                     int bytesReturned;
-                    bool result = DeviceIoControl(handle.DangerousGetHandle(), FSCTL_DELETE_REPARSE_POINT,
+                    var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlDeleteReparsePoint,
                         inBuffer, 8, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
 
                     if (!result)
@@ -316,9 +316,9 @@ namespace Monitor.Core.Utilities
             if (! Directory.Exists(path))
                 return false;
 
-            using (SafeFileHandle handle = OpenReparsePoint(path, EFileAccess.GenericRead))
+            using (var handle = OpenReparsePoint(path, EFileAccess.GenericRead))
             {
-                string target = InternalGetTarget(handle);
+                var target = InternalGetTarget(handle);
                 return target != null;
             }
         }
@@ -335,9 +335,9 @@ namespace Monitor.Core.Utilities
         /// exist, is invalid, is not a junction point, or some other error occurs</exception>
         public static string GetTarget(string junctionPoint)
         {
-            using (SafeFileHandle handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericRead))
+            using (var handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericRead))
             {
-                string target = InternalGetTarget(handle);
+                var target = InternalGetTarget(handle);
                 if (target == null)
                     throw new IOException("Path is not a junction point.");
 
@@ -347,31 +347,31 @@ namespace Monitor.Core.Utilities
 
         private static string InternalGetTarget(SafeFileHandle handle)
         {
-            int outBufferSize = Marshal.SizeOf(typeof(REPARSE_DATA_BUFFER));
-            IntPtr outBuffer = Marshal.AllocHGlobal(outBufferSize);
+            var outBufferSize = Marshal.SizeOf(typeof(ReparseDataBuffer));
+            var outBuffer = Marshal.AllocHGlobal(outBufferSize);
 
             try
             {
                 int bytesReturned;
-                bool result = DeviceIoControl(handle.DangerousGetHandle(), FSCTL_GET_REPARSE_POINT,
+                var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlGetReparsePoint,
                     IntPtr.Zero, 0, outBuffer, outBufferSize, out bytesReturned, IntPtr.Zero);
 
                 if (!result)
                 {
-                    int error = Marshal.GetLastWin32Error();
-                    if (error == ERROR_NOT_A_REPARSE_POINT)
+                    var error = Marshal.GetLastWin32Error();
+                    if (error == ErrorNotAReparsePoint)
                         return null;
 
                     ThrowLastWin32Error("Unable to get information about junction point.");
                 }
 
-                REPARSE_DATA_BUFFER reparseDataBuffer = (REPARSE_DATA_BUFFER)
-                    Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER));
+                var reparseDataBuffer = (ReparseDataBuffer)
+                    Marshal.PtrToStructure(outBuffer, typeof(ReparseDataBuffer));
 
-                if (reparseDataBuffer.ReparseTag != IO_REPARSE_TAG_MOUNT_POINT)
+                if (reparseDataBuffer.ReparseTag != IoReparseTagMountPoint)
                     return null;
 
-                string targetDir = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
+                var targetDir = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
                     reparseDataBuffer.SubstituteNameOffset, reparseDataBuffer.SubstituteNameLength);
 
                 if (targetDir.StartsWith(NonInterpretedPathPrefix))
@@ -387,7 +387,7 @@ namespace Monitor.Core.Utilities
 
         private static SafeFileHandle OpenReparsePoint(string reparsePoint, EFileAccess accessMode)
         {
-            SafeFileHandle reparsePointHandle = new SafeFileHandle(CreateFile(reparsePoint, accessMode,
+            var reparsePointHandle = new SafeFileHandle(CreateFile(reparsePoint, accessMode,
                 EFileShare.Read | EFileShare.Write | EFileShare.Delete,
                 IntPtr.Zero, ECreationDisposition.OpenExisting,
                 EFileAttributes.BackupSemantics | EFileAttributes.OpenReparsePoint, IntPtr.Zero), true);

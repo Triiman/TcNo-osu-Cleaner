@@ -14,17 +14,17 @@ namespace osu_cleaner.Properties
 	public partial class SelectUser : Form
 	{
 		public string ReturnedUsername { get; set;}
-		string InstallDir = "";
+		string _installDir = "";
 
 		public SelectUser(string installDir)
 		{
 			InitializeComponent();
-			InstallDir = installDir;
+			_installDir = installDir;
 		}
 
 		private void SelectUser_Load(object sender, EventArgs e)
 		{
-			foreach (var f in new DirectoryInfo(InstallDir).GetFiles("osu!*.cfg"))
+			foreach (var f in new DirectoryInfo(_installDir).GetFiles("osu!*.cfg"))
 			{
 				if (f.Name == "osu!.cfg") continue;
 				var user = f.Name.Substring(5, f.Name.Length - 9);
@@ -35,9 +35,9 @@ namespace osu_cleaner.Properties
 
 		private void btnUsernameOK_Click(object sender, EventArgs e)
 		{
-			this.ReturnedUsername = "osu!." + (string)listAccounts.SelectedItem + ".cfg";
-			this.DialogResult = DialogResult.OK;
-			this.Close();
+			ReturnedUsername = "osu!." + (string)listAccounts.SelectedItem + ".cfg";
+			DialogResult = DialogResult.OK;
+			Close();
 		}
 	}
 }

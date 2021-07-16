@@ -62,18 +62,18 @@ namespace osu_cleaner
 			this.pnlDirBar = new System.Windows.Forms.Panel();
 			this.tblEntireForm = new System.Windows.Forms.TableLayoutPanel();
 			this.progressBarBackground = new System.Windows.Forms.Panel();
+			this.FindProgressBar = new osu_cleaner.DarkProgressBar();
 			this.tblTopSection = new System.Windows.Forms.TableLayoutPanel();
 			this.tblLogoButtons = new System.Windows.Forms.TableLayoutPanel();
 			this.pnlFindCancel = new System.Windows.Forms.Panel();
 			this.findButton = new DarkUI.Controls.DarkButton();
 			this.cancelButton = new DarkUI.Controls.DarkButton();
+			this.logoBox = new System.Windows.Forms.PictureBox();
+			this.elementList = new osu_cleaner.DarkCheckedListBox();
 			this.stripInfo = new System.Windows.Forms.StatusStrip();
 			this.lblHenntix = new System.Windows.Forms.ToolStripStatusLabel();
 			this.lblTechNobo = new System.Windows.Forms.ToolStripStatusLabel();
 			this.lblTCNOWeb = new System.Windows.Forms.ToolStripStatusLabel();
-			this.logoBox = new System.Windows.Forms.PictureBox();
-			this.FindProgressBar = new osu_cleaner.DarkProgressBar();
-			this.elementList = new osu_cleaner.DarkCheckedListBox();
 			this.tbLFooter.SuspendLayout();
 			this.pnlBottomInfo.SuspendLayout();
 			this.pnlBottomButtons.SuspendLayout();
@@ -85,8 +85,8 @@ namespace osu_cleaner
 			this.tblTopSection.SuspendLayout();
 			this.tblLogoButtons.SuspendLayout();
 			this.pnlFindCancel.SuspendLayout();
-			this.stripInfo.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.logoBox)).BeginInit();
+			this.stripInfo.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// DeletePermanentlyCheckbox
@@ -422,6 +422,16 @@ namespace osu_cleaner
 			this.progressBarBackground.Size = new System.Drawing.Size(824, 23);
 			this.progressBarBackground.TabIndex = 28;
 			// 
+			// FindProgressBar
+			// 
+			this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
+			this.FindProgressBar.Name = "FindProgressBar";
+			this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
+			this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+			this.FindProgressBar.TabIndex = 22;
+			this.FindProgressBar.Visible = false;
+			// 
 			// tblTopSection
 			// 
 			this.tblTopSection.ColumnCount = 2;
@@ -484,6 +494,39 @@ namespace osu_cleaner
 			this.cancelButton.Visible = false;
 			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
 			// 
+			// logoBox
+			// 
+			this.logoBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+			this.logoBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.logoBox.Image = global::osu_cleaner.Properties.Resources.osu_cleaner_logo_256;
+			this.logoBox.ImageLocation = "";
+			this.logoBox.Location = new System.Drawing.Point(3, 3);
+			this.logoBox.Name = "logoBox";
+			this.logoBox.Size = new System.Drawing.Size(150, 144);
+			this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.logoBox.TabIndex = 28;
+			this.logoBox.TabStop = false;
+			this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.logoBox_MouseDown);
+			this.logoBox.MouseEnter += new System.EventHandler(this.logoBox_HoverImage);
+			this.logoBox.MouseLeave += new System.EventHandler(this.logoBox_MouseLeave);
+			this.logoBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.logoBox_HoverImage);
+			// 
+			// elementList
+			// 
+			this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(44)))));
+			this.elementList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.elementList.CheckOnClick = true;
+			this.elementList.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.elementList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+			this.elementList.FormattingEnabled = true;
+			this.elementList.Items.AddRange(new object[] {
+            "Sample line"});
+			this.elementList.Location = new System.Drawing.Point(3, 229);
+			this.elementList.Name = "elementList";
+			this.elementList.Size = new System.Drawing.Size(824, 378);
+			this.elementList.TabIndex = 25;
+			this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
+			// 
 			// stripInfo
 			// 
 			this.stripInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
@@ -539,49 +582,6 @@ namespace osu_cleaner
 			this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
 			this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
 			// 
-			// logoBox
-			// 
-			this.logoBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-			this.logoBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.logoBox.Image = global::osu_cleaner.Properties.Resources.osu_cleaner_logo_256;
-			this.logoBox.ImageLocation = "";
-			this.logoBox.Location = new System.Drawing.Point(3, 3);
-			this.logoBox.Name = "logoBox";
-			this.logoBox.Size = new System.Drawing.Size(150, 144);
-			this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.logoBox.TabIndex = 28;
-			this.logoBox.TabStop = false;
-			this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.logoBox_MouseDown);
-			this.logoBox.MouseEnter += new System.EventHandler(this.logoBox_HoverImage);
-			this.logoBox.MouseLeave += new System.EventHandler(this.logoBox_MouseLeave);
-			this.logoBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.logoBox_HoverImage);
-			// 
-			// FindProgressBar
-			// 
-			this.FindProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.FindProgressBar.Location = new System.Drawing.Point(0, 0);
-			this.FindProgressBar.Name = "FindProgressBar";
-			this.FindProgressBar.Size = new System.Drawing.Size(824, 23);
-			this.FindProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-			this.FindProgressBar.TabIndex = 22;
-			this.FindProgressBar.Visible = false;
-			// 
-			// elementList
-			// 
-			this.elementList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(44)))));
-			this.elementList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.elementList.CheckOnClick = true;
-			this.elementList.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.elementList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
-			this.elementList.FormattingEnabled = true;
-			this.elementList.Items.AddRange(new object[] {
-            "Sample line"});
-			this.elementList.Location = new System.Drawing.Point(3, 229);
-			this.elementList.Name = "elementList";
-			this.elementList.Size = new System.Drawing.Size(824, 378);
-			this.elementList.TabIndex = 25;
-			this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
-			// 
 			// MainApp
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -609,9 +609,9 @@ namespace osu_cleaner
 			this.tblTopSection.ResumeLayout(false);
 			this.tblLogoButtons.ResumeLayout(false);
 			this.pnlFindCancel.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.logoBox)).EndInit();
 			this.stripInfo.ResumeLayout(false);
 			this.stripInfo.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.logoBox)).EndInit();
 			this.ResumeLayout(false);
 
         }

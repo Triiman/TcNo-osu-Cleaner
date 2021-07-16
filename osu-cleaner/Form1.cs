@@ -38,8 +38,8 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-        private readonly string versionNumber = "2.2";
-        private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
+	    private const string _versionNumber = "2.3";
+	    private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
         private readonly List<string> _foundElements = new List<string>();
@@ -55,7 +55,7 @@ namespace osu_cleaner
 
         private void MainApp_Load(object sender, EventArgs e)
         {
-            this.Text = "cln! (osu!Cleaner by TechNobo) v" + versionNumber;
+            Text = $"cln! (osu!Cleaner by TechNobo) v{_versionNumber}";
 
             directoryPath.Text = GetOsuPath();
             _worker = new BackgroundWorker()
@@ -136,6 +136,7 @@ namespace osu_cleaner
 
         private void findButton_Click(object sender, EventArgs e)
         {
+	        if (_worker.IsBusy) return;
             cancelButton.Visible = true;
             elementList.Items.Clear();
             _filesSize = 0;
@@ -202,9 +203,8 @@ namespace osu_cleaner
 
         private void moveCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (moveCheckBox.Checked) DeletePermanentlyCheckbox.Checked = false;
-            if (moveCheckBox.Checked) deleteButton.Text = "Move";
-            else deleteButton.Text = "Delete";
+	        if (moveCheckBox.Checked) DeletePermanentlyCheckbox.Checked = false;
+	        deleteButton.Text = moveCheckBox.Checked ? "Move" : "Delete";
         }
 
         private bool RegexMatch(string str, string regex)
@@ -274,33 +274,39 @@ namespace osu_cleaner
                         continue;
                     }
 
-                    if (!allUncommon.Checked && backgroundDeleteCheckbox.Checked)
-                        if (Regex.IsMatch(fileName, "osu$"))
-                        {
-                            var bg = GetBgPath(file);
-                            if (bg != null && !bgElements.Contains(bg))
-                            {
-                                var size = GetFileSize(d + bg);
-                                if (size != 0)
-                                {
-                                    bgElements.Add(bg);
-                                    _foundElements.Add(d + bg);
-                                    _filesSize += size;
-                                }
-                            }
-                        }
-
-                    if (allUncommon.Checked)
+                    switch (allUncommon.Checked)
                     {
-                        if (!RegexMatch(fileName,
-                            "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm|osu|png|jpeg|jpg|png|bmp|osb|osu|mp3|aac|wav|ogg|txt)$")
-                        )
-                        {
-                            _foundElements.Add(file);
-                            _filesSize += GetFileSize(file);
-                        }
+	                    case false when backgroundDeleteCheckbox.Checked:
+	                    {
+		                    if (Regex.IsMatch(fileName, "osu$"))
+		                    {
+			                    var bg = GetBgPath(file);
+			                    if (bg != null && !bgElements.Contains(bg))
+			                    {
+				                    var size = GetFileSize(d + bg);
+				                    if (size != 0)
+				                    {
+					                    bgElements.Add(bg);
+					                    _foundElements.Add(d + bg);
+					                    _filesSize += size;
+				                    }
+			                    }
+		                    }
 
-                        continue;
+		                    break;
+	                    }
+	                    case true:
+	                    {
+		                    if (!RegexMatch(fileName,
+			                    "(avi|wmv|flv|mp4|mpg|mov|mkv|m4v|mpeg|3gp|mkv|webm|osu|png|jpeg|jpg|png|bmp|osb|osu|mp3|aac|wav|ogg|txt)$")
+		                    )
+		                    {
+			                    _foundElements.Add(file);
+			                    _filesSize += GetFileSize(file);
+		                    }
+
+		                    continue;
+	                    }
                     }
 
                     if (videoDeleteCheckbox.Checked)
@@ -396,12 +402,11 @@ namespace osu_cleaner
                         if (Regex.IsMatch(line, "^//Background and Video events"))
                         {
                             line = file.ReadLine();
+                            if (line == null) continue;
                             var items = line.Split(',');
-                            if (items[0] == "0")
-                            {
-                                var tmp = (precedeWithSlash ? "\\" : "") + items[2].Replace("\"", string.Empty);
-                                return tmp;
-                            }
+                            if (items[0] != "0") continue;
+                            var tmp = (precedeWithSlash ? "\\" : "") + items[2].Replace("\"", string.Empty);
+                            return tmp;
                         }
 
                     return null;
@@ -463,16 +468,6 @@ namespace osu_cleaner
             sbDeleteCheckbox.Enabled = !bChecked;
             skinDeleteCheckbox.Enabled = !bChecked;
             videoDeleteCheckbox.Enabled = !bChecked;
-        }
-
-        private void lblTechNobo_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
-        }
-
-        private void lblHenntix_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://github.com/henntix/osu-Cleaner");
         }
 
         // Context menu
@@ -583,24 +578,24 @@ namespace osu_cleaner
         }
 
         private readonly List<string> _queueRemovedItems = new List<string>();
-        private readonly Mutex m = new Mutex();
+        private readonly Mutex _m = new Mutex();
 
         private void QueueRemoveString(string toRemove)
         {
-            m.WaitOne();
+            _m.WaitOne();
             try
             {
                 _queueRemovedItems.Add(toRemove);
             }
             finally {
-                m.ReleaseMutex();
+                _m.ReleaseMutex();
             }
         }
 
         // Loop to update the list only once a second while deleting
         private void ListboxUpdater(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker worker = (BackgroundWorker)sender;
+            var worker = (BackgroundWorker)sender;
             while (!worker.CancellationPending)
             {
                 UpdateListbox();
@@ -613,10 +608,10 @@ namespace osu_cleaner
             UpdateListbox();
         }
 
-        List<string> _currentQueue = new List<string>();
+        private List<string> _currentQueue = new List<string>();
         private void UpdateListbox()
         {
-            m.WaitOne();
+            _m.WaitOne();
             try
             {
                 if (_queueRemovedItems != null && _queueRemovedItems.Count > 0)
@@ -627,7 +622,7 @@ namespace osu_cleaner
             }
             finally
             {
-                m.ReleaseMutex();
+                _m.ReleaseMutex();
             }
 
             if (_currentQueue == null || _currentQueue.Count <= 0) return;
@@ -722,18 +717,18 @@ namespace osu_cleaner
             var path = folder.ShowDialog();
             if (path == DialogResult.OK)
             {
-                var fo = new InteropSHFileOperation
+                var fo = new InteropShFileOperation
                 {
-                    wFunc = InteropSHFileOperation.FO_Func.FO_MOVE,
-                    fFlags =
+                    WFunc = InteropShFileOperation.FoFunc.FO_MOVE,
+                    FFlags =
                     {
-                        FOF_ALLOWUNDO = false,
-                        FOF_NOCONFIRMATION = true,
-                        FOF_NOERRORUI = false,
-                        FOF_SILENT = false
+                        FofAllowundo = false,
+                        FofNoconfirmation = true,
+                        FofNoerrorui = false,
+                        FofSilent = false
                     },
-                    pFrom = songsFolder,
-                    pTo = Path.Combine(folder.SelectedPath, "Songs")
+                    PFrom = songsFolder,
+                    PTo = Path.Combine(folder.SelectedPath, "Songs")
                 };
                 if (fo.Execute())
                 {
@@ -755,17 +750,20 @@ namespace osu_cleaner
 
 		}
 
-		private void directoryPath_TextChanged(object sender, EventArgs e)
+		private string _userCfgFile = "";
+        private void directoryPath_TextChanged(object sender, EventArgs e)
 		{
-            // if =2, pick username automatically.
-            // Notify user as well if auto picked what it will do.
-            if (new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg").Length > 1)
-			{
-                SelectUser su = new SelectUser(directoryPath.Text);
+			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
+			if (configFiles.Length == 2)
+				_userCfgFile = configFiles[1].Name;
+            else if (configFiles.Length > 1)
+            {
+	            // Notify user as well if auto picked what it will do.
+                var su = new SelectUser(directoryPath.Text);
                 var result = su.ShowDialog();
                 if (result == DialogResult.OK)
 				{
-                    var cfgFile = su.ReturnedUsername;
+					_userCfgFile = su.ReturnedUsername;
 				}
             }
 		}
@@ -861,10 +859,10 @@ public static class ControlExtensions
     }
 }
 
-public class InteropSHFileOperation
+public class InteropShFileOperation
 {
     // http://pinvoke.net/default.aspx/shell32/SHFileOperation.html
-    public enum FO_Func : uint
+    public enum FoFunc : uint
     {
         FO_MOVE = 0x0001,
         FO_COPY = 0x0002,
@@ -873,10 +871,10 @@ public class InteropSHFileOperation
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 2)]
-    struct SHFILEOPSTRUCT
+    struct Shfileopstruct
     {
         public IntPtr hwnd;
-        public FO_Func wFunc;
+        public FoFunc wFunc;
         [MarshalAs(UnmanagedType.LPWStr)]
         public string pFrom;
         [MarshalAs(UnmanagedType.LPWStr)]
@@ -891,67 +889,69 @@ public class InteropSHFileOperation
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    static extern int SHFileOperation([In, Out] ref SHFILEOPSTRUCT lpFileOp);
+    static extern int SHFileOperation([In, Out] ref Shfileopstruct lpFileOp);
 
-    private SHFILEOPSTRUCT _ShFile;
-    public FILEOP_FLAGS fFlags;
+    private Shfileopstruct _shFile;
+    public FileopFlags FFlags;
 
-    public IntPtr hwnd
+    public IntPtr Hwnd
     {
-        set => this._ShFile.hwnd = value;
+        set => _shFile.hwnd = value;
     }
-    public FO_Func wFunc
+    public FoFunc WFunc
     {
-        set => this._ShFile.wFunc = value;
-    }
-
-    public string pFrom
-    {
-        set => this._ShFile.pFrom = value + '\0' + '\0';
-    }
-    public string pTo
-    {
-        set => this._ShFile.pTo = value + '\0' + '\0';
+        set => _shFile.wFunc = value;
     }
 
-    public bool fAnyOperationsAborted
+    public string PFrom
     {
-        set => this._ShFile.fAnyOperationsAborted = value;
+        set => _shFile.pFrom = value + '\0' + '\0';
     }
-    public IntPtr hNameMappings
+    public string PTo
     {
-        set => this._ShFile.hNameMappings = value;
-    }
-    public string lpszProgressTitle
-    {
-        set => this._ShFile.lpszProgressTitle = value + '\0';
+        set => _shFile.pTo = value + '\0' + '\0';
     }
 
-    public InteropSHFileOperation()
+    public bool FAnyOperationsAborted
+    {
+        set => _shFile.fAnyOperationsAborted = value;
+    }
+    public IntPtr HNameMappings
+    {
+        set => _shFile.hNameMappings = value;
+    }
+    public string LpszProgressTitle
+    {
+        set => _shFile.lpszProgressTitle = value + '\0';
+    }
+
+    public InteropShFileOperation()
     {
 
-        this.fFlags = new FILEOP_FLAGS();
-        this._ShFile = new SHFILEOPSTRUCT();
-        this._ShFile.hwnd = IntPtr.Zero;
-        this._ShFile.wFunc = FO_Func.FO_COPY;
-        this._ShFile.pFrom = "";
-        this._ShFile.pTo = "";
-        this._ShFile.fAnyOperationsAborted = false;
-        this._ShFile.hNameMappings = IntPtr.Zero;
-        this._ShFile.lpszProgressTitle = "";
+        FFlags = new FileopFlags();
+        _shFile = new Shfileopstruct
+        {
+	        hwnd = IntPtr.Zero,
+	        wFunc = FoFunc.FO_COPY,
+	        pFrom = "",
+	        pTo = "",
+	        fAnyOperationsAborted = false,
+	        hNameMappings = IntPtr.Zero,
+	        lpszProgressTitle = ""
+        };
 
     }
 
     public bool Execute()
     {
-        this._ShFile.fFlags = this.fFlags.Flag;
-        return SHFileOperation(ref this._ShFile) == 0;//true if no errors
+        _shFile.fFlags = FFlags.Flag;
+        return SHFileOperation(ref _shFile) == 0;//true if no errors
     }
 
-    public class FILEOP_FLAGS
+    public class FileopFlags
     {
         [Flags]
-        private enum FILEOP_FLAGS_ENUM : ushort
+        private enum FileopFlagsEnum : ushort
         {
             FOF_MULTIDESTFILES = 0x0001,
             FOF_CONFIRMMOUSE = 0x0002,
@@ -972,22 +972,22 @@ public class InteropSHFileOperation
             FOF_NORECURSEREPARSE = 0x8000,  // treat reparse points as objects, not containers
         }
 
-        public bool FOF_MULTIDESTFILES = false;
-        public bool FOF_CONFIRMMOUSE = false;
-        public bool FOF_SILENT = false;
-        public bool FOF_RENAMEONCOLLISION = false;
-        public bool FOF_NOCONFIRMATION = false;
-        public bool FOF_WANTMAPPINGHANDLE = false;
-        public bool FOF_ALLOWUNDO = false;
-        public bool FOF_FILESONLY = false;
-        public bool FOF_SIMPLEPROGRESS = false;
-        public bool FOF_NOCONFIRMMKDIR = false;
-        public bool FOF_NOERRORUI = false;
-        public bool FOF_NOCOPYSECURITYATTRIBS = false;
-        public bool FOF_NORECURSION = false;
-        public bool FOF_NO_CONNECTED_ELEMENTS = false;
-        public bool FOF_WANTNUKEWARNING = false;
-        public bool FOF_NORECURSEREPARSE = false;
+        public bool FofMultidestfiles = false;
+        public bool FofConfirmmouse = false;
+        public bool FofSilent = false;
+        public bool FofRenameoncollision = false;
+        public bool FofNoconfirmation = false;
+        public bool FofWantmappinghandle = false;
+        public bool FofAllowundo = false;
+        public bool FofFilesonly = false;
+        public bool FofSimpleprogress = false;
+        public bool FofNoconfirmmkdir = false;
+        public bool FofNoerrorui = false;
+        public bool FofNocopysecurityattribs = false;
+        public bool FofNorecursion = false;
+        public bool FofNoConnectedElements = false;
+        public bool FofWantnukewarning = false;
+        public bool FofNorecursereparse = false;
 
         public ushort Flag
         {
@@ -995,38 +995,38 @@ public class InteropSHFileOperation
             {
                 ushort returnValue = 0;
 
-                if (this.FOF_MULTIDESTFILES)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_MULTIDESTFILES;
-                if (this.FOF_CONFIRMMOUSE)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_CONFIRMMOUSE;
-                if (this.FOF_SILENT)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_SILENT;
-                if (this.FOF_RENAMEONCOLLISION)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_RENAMEONCOLLISION;
-                if (this.FOF_NOCONFIRMATION)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCONFIRMATION;
-                if (this.FOF_WANTMAPPINGHANDLE)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_WANTMAPPINGHANDLE;
-                if (this.FOF_ALLOWUNDO)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_ALLOWUNDO;
-                if (this.FOF_FILESONLY)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_FILESONLY;
-                if (this.FOF_SIMPLEPROGRESS)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_SIMPLEPROGRESS;
-                if (this.FOF_NOCONFIRMMKDIR)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCONFIRMMKDIR;
-                if (this.FOF_NOERRORUI)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOERRORUI;
-                if (this.FOF_NOCOPYSECURITYATTRIBS)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NOCOPYSECURITYATTRIBS;
-                if (this.FOF_NORECURSION)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NORECURSION;
-                if (this.FOF_NO_CONNECTED_ELEMENTS)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NO_CONNECTED_ELEMENTS;
-                if (this.FOF_WANTNUKEWARNING)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_WANTNUKEWARNING;
-                if (this.FOF_NORECURSEREPARSE)
-                    returnValue |= (ushort)FILEOP_FLAGS_ENUM.FOF_NORECURSEREPARSE;
+                if (FofMultidestfiles)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_MULTIDESTFILES;
+                if (FofConfirmmouse)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_CONFIRMMOUSE;
+                if (FofSilent)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_SILENT;
+                if (FofRenameoncollision)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_RENAMEONCOLLISION;
+                if (FofNoconfirmation)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NOCONFIRMATION;
+                if (FofWantmappinghandle)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_WANTMAPPINGHANDLE;
+                if (FofAllowundo)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_ALLOWUNDO;
+                if (FofFilesonly)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_FILESONLY;
+                if (FofSimpleprogress)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_SIMPLEPROGRESS;
+                if (FofNoconfirmmkdir)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NOCONFIRMMKDIR;
+                if (FofNoerrorui)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NOERRORUI;
+                if (FofNocopysecurityattribs)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NOCOPYSECURITYATTRIBS;
+                if (FofNorecursion)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NORECURSION;
+                if (FofNoConnectedElements)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NO_CONNECTED_ELEMENTS;
+                if (FofWantnukewarning)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_WANTNUKEWARNING;
+                if (FofNorecursereparse)
+                    returnValue |= (ushort)FileopFlagsEnum.FOF_NORECURSEREPARSE;
 
                 return returnValue;
             }

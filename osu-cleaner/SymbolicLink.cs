@@ -8,9 +8,9 @@ namespace SymbolicLinkSupport
 {
     internal static class SymbolicLink
     {
-        private const uint genericReadAccess = 0x80000000;
+        private const uint GenericReadAccess = 0x80000000;
 
-        private const uint fileFlagsForOpenReparsePointAndBackupSemantics = 0x02200000;
+        private const uint FileFlagsForOpenReparsePointAndBackupSemantics = 0x02200000;
         /// <summary>
         /// Flag to indicate that the reparse point is relative
         /// </summary>
@@ -18,21 +18,21 @@ namespace SymbolicLinkSupport
         /// This is SYMLINK_FLAG_RELATIVE from from ntifs.h
         /// See https://msdn.microsoft.com/en-us/library/cc232006.aspx
         /// </remarks>
-        private const uint symlinkReparsePointFlagRelative = 0x00000001;
+        private const uint SymlinkReparsePointFlagRelative = 0x00000001;
 
-        private const int ioctlCommandGetReparsePoint = 0x000900A8;
+        private const int IoctlCommandGetReparsePoint = 0x000900A8;
 
-        private const uint openExisting = 0x3;
+        private const uint OpenExisting = 0x3;
 
-        private const uint pathNotAReparsePointError = 0x80071126;
+        private const uint PathNotAReparsePointError = 0x80071126;
 
-        private const uint shareModeAll = 0x7; // Read, Write, Delete
+        private const uint ShareModeAll = 0x7; // Read, Write, Delete
 
-        private const uint symLinkTag = 0xA000000C;
+        private const uint SymLinkTag = 0xA000000C;
 
-        private const int targetIsAFile = 0;
+        private const int TargetIsAFile = 0;
 
-        private const int targetIsADirectory = 1;
+        private const int TargetIsADirectory = 1;
 
         /// <summary>
         /// The maximum number of characters for a relative path, using Unicode 2-byte characters.
@@ -46,7 +46,7 @@ namespace SymbolicLinkSupport
         /// 
         /// This value includes allowing for a terminating null character.
         /// </remarks>
-        private const int maxRelativePathLengthUnicodeChars = 260;
+        private const int MaxRelativePathLengthUnicodeChars = 260;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern SafeFileHandle CreateFile(
@@ -92,7 +92,7 @@ namespace SymbolicLinkSupport
                 targetPath = GetTargetPathRelativeToLink(linkPath, targetPath, true);
             }
 
-            if (!CreateSymbolicLink(linkPath, targetPath, targetIsADirectory) || Marshal.GetLastWin32Error() != 0)
+            if (!CreateSymbolicLink(linkPath, targetPath, TargetIsADirectory) || Marshal.GetLastWin32Error() != 0)
             {
                 try
                 {
@@ -117,7 +117,7 @@ namespace SymbolicLinkSupport
                 targetPath = GetTargetPathRelativeToLink(linkPath, targetPath);
             }
 
-            if (!CreateSymbolicLink(linkPath, targetPath, targetIsAFile))
+            if (!CreateSymbolicLink(linkPath, targetPath, TargetIsAFile))
             {
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
             }
@@ -137,7 +137,7 @@ namespace SymbolicLinkSupport
                 linkPath = Path.GetDirectoryName(linkPath.TrimEnd(Path.DirectorySeparatorChar));
             }
             
-            StringBuilder relativePath = new StringBuilder(maxRelativePathLengthUnicodeChars);
+            var relativePath = new StringBuilder(MaxRelativePathLengthUnicodeChars);
             if (!PathRelativePathToW(relativePath, linkPath, relativePathAttribute, targetPath, relativePathAttribute))
             {
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
@@ -158,21 +158,21 @@ namespace SymbolicLinkSupport
             {
                 return false;
             }
-            string target = GetTarget(path);
+            var target = GetTarget(path);
             return target != null;
         }
 
         private static SafeFileHandle GetFileHandle(string path)
         {
-            return CreateFile(path, genericReadAccess, shareModeAll, IntPtr.Zero, openExisting,
-                fileFlagsForOpenReparsePointAndBackupSemantics, IntPtr.Zero);
+            return CreateFile(path, GenericReadAccess, ShareModeAll, IntPtr.Zero, OpenExisting,
+                FileFlagsForOpenReparsePointAndBackupSemantics, IntPtr.Zero);
         }
 
         public static string GetTarget(string path)
         {
             SymbolicLinkReparseData reparseDataBuffer;
 
-            using (SafeFileHandle fileHandle = GetFileHandle(path))
+            using (var fileHandle = GetFileHandle(path))
             {
                 if (fileHandle.IsInvalid)
                 {
@@ -181,21 +181,21 @@ namespace SymbolicLinkSupport
 #if NET35
                 int outBufferSize = Marshal.SizeOf(typeof(SymbolicLinkReparseData));
 #else
-                int outBufferSize = Marshal.SizeOf<SymbolicLinkReparseData>();
+                var outBufferSize = Marshal.SizeOf<SymbolicLinkReparseData>();
 #endif
-                IntPtr outBuffer = IntPtr.Zero;
+                var outBuffer = IntPtr.Zero;
                 try
                 {
                     outBuffer = Marshal.AllocHGlobal(outBufferSize);
-                    bool success = DeviceIoControl(
-                        fileHandle.DangerousGetHandle(), ioctlCommandGetReparsePoint, IntPtr.Zero, 0,
-                        outBuffer, outBufferSize, out int bytesReturned, IntPtr.Zero);
+                    var success = DeviceIoControl(
+                        fileHandle.DangerousGetHandle(), IoctlCommandGetReparsePoint, IntPtr.Zero, 0,
+                        outBuffer, outBufferSize, out var bytesReturned, IntPtr.Zero);
 
                     fileHandle.Dispose();
 
                     if (!success)
                     {
-                        if (((uint)Marshal.GetHRForLastWin32Error()) == pathNotAReparsePointError)
+                        if (((uint)Marshal.GetHRForLastWin32Error()) == PathNotAReparsePointError)
                         {
                             return null;
                         }
@@ -214,18 +214,18 @@ namespace SymbolicLinkSupport
                     Marshal.FreeHGlobal(outBuffer);
                 }
             }
-            if (reparseDataBuffer.ReparseTag != symLinkTag)
+            if (reparseDataBuffer.ReparseTag != SymLinkTag)
             {
                 return null;
             }
 
-            string target = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
+            var target = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
                 reparseDataBuffer.PrintNameOffset, reparseDataBuffer.PrintNameLength);
 
-            if ((reparseDataBuffer.Flags & symlinkReparsePointFlagRelative) == symlinkReparsePointFlagRelative)
+            if ((reparseDataBuffer.Flags & SymlinkReparsePointFlagRelative) == SymlinkReparsePointFlagRelative)
             {
-                string basePath = Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar));
-                string combinedPath = Path.Combine(basePath, target);
+                var basePath = Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar));
+                var combinedPath = Path.Combine(basePath, target);
                 target = Path.GetFullPath(combinedPath);
             }
 

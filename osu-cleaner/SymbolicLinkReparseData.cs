@@ -8,7 +8,7 @@ namespace SymbolicLinkSupport
     [StructLayout(LayoutKind.Sequential)]
     internal struct SymbolicLinkReparseData
     {
-        private const int maxUnicodePathLength = 32767 * 2;
+        private const int MaxUnicodePathLength = 32767 * 2;
 
         public uint ReparseTag;
         public ushort ReparseDataLength;
@@ -20,7 +20,7 @@ namespace SymbolicLinkSupport
         public uint Flags;
         // PathBuffer needs to be able to contain both SubstituteName and PrintName,
         // so needs to be 2 * maximum of each
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = maxUnicodePathLength * 2)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = MaxUnicodePathLength * 2)]
         public byte[] PathBuffer;
     }
 }

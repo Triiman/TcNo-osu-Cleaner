@@ -8,9 +8,9 @@ namespace osu_cleaner
 {
     public sealed class Consts
     {
-        public const int ToolWindowHeaderSize = 25;
-        public const int DocumentTabAreaSize = 24;
-        public const int ToolWindowTabAreaSize = 21;
+        public const int toolWindowHeaderSize = 25;
+        public const int documentTabAreaSize = 24;
+        public const int toolWindowTabAreaSize = 21;
         public static int Padding = 10;
 
         public static int ScrollBarSize = 15;
@@ -35,8 +35,8 @@ namespace osu_cleaner
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            BufferedGraphicsContext ctx = new BufferedGraphicsContext();
-            BufferedGraphics bg = ctx.Allocate(e.Graphics, e.ClipRectangle);
+            var ctx = new BufferedGraphicsContext();
+            var bg = ctx.Allocate(e.Graphics, e.ClipRectangle);
 
             var progress = (float) (Value / (double) Maximum);
             if (progress <= 0.95) // Prevents blurry progress bar freezing at end
@@ -75,8 +75,8 @@ namespace osu_cleaner
     {
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            BufferedGraphicsContext ctx = new BufferedGraphicsContext();
-            BufferedGraphics bg = ctx.Allocate(e.Graphics, e.Bounds);
+            var ctx = new BufferedGraphicsContext();
+            var bg = ctx.Allocate(e.Graphics, e.Bounds);
             // Draw element background
             using (var b = new SolidBrush(Color.FromArgb(34, 33, 44)))
             {
