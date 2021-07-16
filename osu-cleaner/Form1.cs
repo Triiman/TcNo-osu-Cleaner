@@ -750,7 +750,27 @@ namespace osu_cleaner
             }
         }
 
-        private void btnReplaceMissing_Click(object sender, EventArgs e)
+		private void logoBox_HoverImage(object sender, MouseEventArgs e)
+		{
+
+		}
+
+		private void directoryPath_TextChanged(object sender, EventArgs e)
+		{
+            // if =2, pick username automatically.
+            // Notify user as well if auto picked what it will do.
+            if (new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg").Length > 1)
+			{
+                SelectUser su = new SelectUser(directoryPath.Text);
+                var result = su.ShowDialog();
+                if (result == DialogResult.OK)
+				{
+                    var cfgFile = su.ReturnedUsername;
+				}
+            }
+		}
+
+		private void btnReplaceMissing_Click(object sender, EventArgs e)
         {
             FindProgressBar.Show();
             _pixelWorker.RunWorkerAsync();
