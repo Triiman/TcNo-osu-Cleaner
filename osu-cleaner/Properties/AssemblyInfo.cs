@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("osu-cleaner v2.0 (TechNobo)")]
 [assembly: AssemblyDescription("Lower osu! storage usage. Original by henntix, Updated by TechNobo https://tcno.co")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Wesley Pyburn (TechNobo)")]
 [assembly: AssemblyProduct("osu-cleaner")]
-[assembly: AssemblyCopyright("Copyright © 2020")]
+[assembly: AssemblyCopyright("Copyright © TechNobo (Wesley Pyburn) 2020-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

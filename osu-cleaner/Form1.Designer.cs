@@ -71,6 +71,7 @@ namespace osu_cleaner
 			this.logoBox = new System.Windows.Forms.PictureBox();
 			this.elementList = new osu_cleaner.DarkCheckedListBox();
 			this.stripInfo = new System.Windows.Forms.StatusStrip();
+			this.lblCurrentAccount = new System.Windows.Forms.ToolStripStatusLabel();
 			this.lblHenntix = new System.Windows.Forms.ToolStripStatusLabel();
 			this.lblTechNobo = new System.Windows.Forms.ToolStripStatusLabel();
 			this.lblTCNOWeb = new System.Windows.Forms.ToolStripStatusLabel();
@@ -109,7 +110,7 @@ namespace osu_cleaner
 			this.selectAllButton.Size = new System.Drawing.Size(75, 23);
 			this.selectAllButton.TabIndex = 10;
 			this.selectAllButton.Text = "Select all";
-			this.selectAllButton.Click += new System.EventHandler(this.selectAllButton_Click);
+			this.selectAllButton.Click += new System.EventHandler(this.SelectAllButton_Click);
 			// 
 			// deselectAllButton
 			// 
@@ -119,7 +120,7 @@ namespace osu_cleaner
 			this.deselectAllButton.Size = new System.Drawing.Size(75, 23);
 			this.deselectAllButton.TabIndex = 11;
 			this.deselectAllButton.Text = "Unselect all";
-			this.deselectAllButton.Click += new System.EventHandler(this.deselectAllButton_Click);
+			this.deselectAllButton.Click += new System.EventHandler(this.DeselectAllButton_Click);
 			// 
 			// filesSizeLabel
 			// 
@@ -151,7 +152,7 @@ namespace osu_cleaner
 			this.moveCheckBox.Size = new System.Drawing.Size(646, 23);
 			this.moveCheckBox.TabIndex = 15;
 			this.moveCheckBox.Text = "Move to \'Cleaned\' instead of removing";
-			this.moveCheckBox.CheckedChanged += new System.EventHandler(this.moveCheckBox_CheckedChanged);
+			this.moveCheckBox.CheckedChanged += new System.EventHandler(this.MoveCheckBox_CheckedChanged);
 			// 
 			// tbLFooter
 			// 
@@ -202,7 +203,7 @@ namespace osu_cleaner
 			this.symlinkButton.Size = new System.Drawing.Size(156, 23);
 			this.symlinkButton.TabIndex = 13;
 			this.symlinkButton.Text = "Move song files (Symlink)";
-			this.symlinkButton.Click += new System.EventHandler(this.symlinkButton_Click);
+			this.symlinkButton.Click += new System.EventHandler(this.SymlinkButton_Click);
 			// 
 			// openMoved
 			// 
@@ -216,7 +217,7 @@ namespace osu_cleaner
 			this.openMoved.Text = "See Files";
 			this.openMoved.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
 			this.openMoved.Visible = false;
-			this.openMoved.Click += new System.EventHandler(this.openMoved_Click);
+			this.openMoved.Click += new System.EventHandler(this.OpenMoved_Click);
 			// 
 			// deleteButton
 			// 
@@ -226,7 +227,7 @@ namespace osu_cleaner
 			this.deleteButton.Size = new System.Drawing.Size(75, 23);
 			this.deleteButton.TabIndex = 2;
 			this.deleteButton.Text = "Delete";
-			this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
+			this.deleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
 			// 
 			// pnlCheckboxes
 			// 
@@ -254,7 +255,7 @@ namespace osu_cleaner
 			this.btnReplaceMissing.Size = new System.Drawing.Size(283, 23);
 			this.btnReplaceMissing.TabIndex = 29;
 			this.btnReplaceMissing.Text = "Replace missing images with black images";
-			this.btnReplaceMissing.Click += new System.EventHandler(this.btnReplaceMissing_Click);
+			this.btnReplaceMissing.Click += new System.EventHandler(this.BtnReplaceMissing_Click);
 			// 
 			// lblPrompt
 			// 
@@ -274,7 +275,7 @@ namespace osu_cleaner
 			this.allUncommon.Size = new System.Drawing.Size(260, 17);
 			this.allUncommon.TabIndex = 27;
 			this.allUncommon.Text = "All uncommon files (CHECK RESULTS FIRST)";
-			this.allUncommon.CheckedChanged += new System.EventHandler(this.allUncommon_CheckedChanged);
+			this.allUncommon.CheckedChanged += new System.EventHandler(this.AllUncommon_CheckedChanged);
 			// 
 			// bloatExtraDeleteBox
 			// 
@@ -336,7 +337,7 @@ namespace osu_cleaner
 			this.directoryPath.Name = "directoryPath";
 			this.directoryPath.Size = new System.Drawing.Size(625, 13);
 			this.directoryPath.TabIndex = 29;
-			this.directoryPath.TextChanged += new System.EventHandler(this.directoryPath_TextChanged);
+			this.directoryPath.TextChanged += new System.EventHandler(this.DirectoryPath_TextChanged);
 			// 
 			// directorySelectButton
 			// 
@@ -346,7 +347,7 @@ namespace osu_cleaner
 			this.directorySelectButton.Size = new System.Drawing.Size(75, 23);
 			this.directorySelectButton.TabIndex = 28;
 			this.directorySelectButton.Text = "Browse";
-			this.directorySelectButton.Click += new System.EventHandler(this.directorySelectButton_Click);
+			this.directorySelectButton.Click += new System.EventHandler(this.DirectorySelectButton_Click);
 			// 
 			// directoryLabel
 			// 
@@ -481,7 +482,7 @@ namespace osu_cleaner
 			this.findButton.Size = new System.Drawing.Size(75, 23);
 			this.findButton.TabIndex = 1;
 			this.findButton.Text = "Find";
-			this.findButton.Click += new System.EventHandler(this.findButton_Click);
+			this.findButton.Click += new System.EventHandler(this.FindButton_Click);
 			// 
 			// cancelButton
 			// 
@@ -492,7 +493,7 @@ namespace osu_cleaner
 			this.cancelButton.TabIndex = 18;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.Visible = false;
-			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+			this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
 			// 
 			// logoBox
 			// 
@@ -506,10 +507,10 @@ namespace osu_cleaner
 			this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.logoBox.TabIndex = 28;
 			this.logoBox.TabStop = false;
-			this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.logoBox_MouseDown);
-			this.logoBox.MouseEnter += new System.EventHandler(this.logoBox_HoverImage);
-			this.logoBox.MouseLeave += new System.EventHandler(this.logoBox_MouseLeave);
-			this.logoBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.logoBox_HoverImage);
+			this.logoBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LogoBox_MouseDown);
+			this.logoBox.MouseEnter += new System.EventHandler(this.LogoBox_HoverImage);
+			this.logoBox.MouseLeave += new System.EventHandler(this.LogoBox_MouseLeave);
+			this.logoBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.LogoBox_HoverImage);
 			// 
 			// elementList
 			// 
@@ -525,12 +526,13 @@ namespace osu_cleaner
 			this.elementList.Name = "elementList";
 			this.elementList.Size = new System.Drawing.Size(824, 378);
 			this.elementList.TabIndex = 25;
-			this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.elementList_MouseDown);
+			this.elementList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ElementList_MouseDown);
 			// 
 			// stripInfo
 			// 
 			this.stripInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
 			this.stripInfo.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblCurrentAccount,
             this.lblHenntix,
             this.lblTechNobo,
             this.lblTCNOWeb});
@@ -539,6 +541,16 @@ namespace osu_cleaner
 			this.stripInfo.Size = new System.Drawing.Size(830, 20);
 			this.stripInfo.TabIndex = 35;
 			this.stripInfo.Text = "statusStrip1";
+			// 
+			// lblCurrentAccount
+			// 
+			this.lblCurrentAccount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(100)))), ((int)(((byte)(158)))));
+			this.lblCurrentAccount.Name = "lblCurrentAccount";
+			this.lblCurrentAccount.Size = new System.Drawing.Size(128, 15);
+			this.lblCurrentAccount.Text = "Current account: None";
+			this.lblCurrentAccount.Click += new System.EventHandler(this.LblCurrentAccount_Click);
+			this.lblCurrentAccount.MouseEnter += new System.EventHandler(this.LinkLabel_MouseEnter);
+			this.lblCurrentAccount.MouseLeave += new System.EventHandler(this.LinkLabel_MouseLeave);
 			// 
 			// lblHenntix
 			// 
@@ -550,9 +562,9 @@ namespace osu_cleaner
 			this.lblHenntix.Name = "lblHenntix";
 			this.lblHenntix.Size = new System.Drawing.Size(117, 15);
 			this.lblHenntix.Text = "Original project: henntix";
-			this.lblHenntix.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblHenntix_MouseDown);
-			this.lblHenntix.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
-			this.lblHenntix.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
+			this.lblHenntix.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LblHenntix_MouseDown);
+			this.lblHenntix.MouseEnter += new System.EventHandler(this.LinkLabel_MouseEnter);
+			this.lblHenntix.MouseLeave += new System.EventHandler(this.LinkLabel_MouseLeave);
 			// 
 			// lblTechNobo
 			// 
@@ -564,9 +576,9 @@ namespace osu_cleaner
 			this.lblTechNobo.Name = "lblTechNobo";
 			this.lblTechNobo.Size = new System.Drawing.Size(157, 15);
 			this.lblTechNobo.Text = "Updated && Styled by TechNobo";
-			this.lblTechNobo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblTechNobo_MouseDown);
-			this.lblTechNobo.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
-			this.lblTechNobo.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
+			this.lblTechNobo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LblTechNobo_MouseDown);
+			this.lblTechNobo.MouseEnter += new System.EventHandler(this.LinkLabel_MouseEnter);
+			this.lblTechNobo.MouseLeave += new System.EventHandler(this.LinkLabel_MouseLeave);
 			// 
 			// lblTCNOWeb
 			// 
@@ -578,9 +590,9 @@ namespace osu_cleaner
 			this.lblTCNOWeb.Name = "lblTCNOWeb";
 			this.lblTCNOWeb.Size = new System.Drawing.Size(91, 15);
 			this.lblTCNOWeb.Text = "tcno.co (Website)";
-			this.lblTCNOWeb.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblTCNOWeb_MouseDown);
-			this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.linkLabel_MouseEnter);
-			this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.linkLabel_MouseLeave);
+			this.lblTCNOWeb.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LblTCNOWeb_MouseDown);
+			this.lblTCNOWeb.MouseEnter += new System.EventHandler(this.LinkLabel_MouseEnter);
+			this.lblTCNOWeb.MouseLeave += new System.EventHandler(this.LinkLabel_MouseLeave);
 			// 
 			// MainApp
 			// 
@@ -659,6 +671,7 @@ namespace osu_cleaner
         private DarkUI.Controls.DarkLabel lblPrompt;
         private DarkUI.Controls.DarkButton symlinkButton;
         private DarkUI.Controls.DarkButton btnReplaceMissing;
-    }
+		private ToolStripStatusLabel lblCurrentAccount;
+	}
 }
 

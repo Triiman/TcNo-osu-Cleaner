@@ -95,18 +95,18 @@ namespace osu_cleaner
 
             // Context menu
             var tsOpenFile = new ToolStripMenuItem {Text = "Open file"};
-            tsOpenFile.Click += tsOpenFile_Click;
+            tsOpenFile.Click += TsOpenFile_Click;
             var tsOpenFolder = new ToolStripMenuItem {Text = "Open Folder"};
-            tsOpenFolder.Click += tsOpenFolder_Click;
+            tsOpenFolder.Click += TsOpenFolder_Click;
             var tsCopyFilePath = new ToolStripMenuItem {Text = "Copy file path"};
-            tsCopyFilePath.Click += tsCopyFilePath_Click;
+            tsCopyFilePath.Click += TsCopyFilePath_Click;
             _collectionRoundMenuStrip.Items.AddRange(new ToolStripItem[] {tsOpenFile, tsOpenFolder, tsCopyFilePath});
 
             openMoved.Visible = Directory.Exists(Path.Combine(directoryPath.Text, "Cleaned"));
             elementList.Items.Clear();
         }
 
-        private void directorySelectButton_Click(object sender, EventArgs e)
+        private void DirectorySelectButton_Click(object sender, EventArgs e)
         {
             var folder = new FolderBrowserDialog
             {
@@ -126,7 +126,7 @@ namespace osu_cleaner
                         dlg.ShowDialog();
                     }
 
-                    directorySelectButton_Click(sender, e);
+                    DirectorySelectButton_Click(sender, e);
                     return;
                 }
 
@@ -134,7 +134,7 @@ namespace osu_cleaner
             openMoved.Visible = Directory.Exists(Path.Combine(directoryPath.Text, "Cleaned"));
         }
 
-        private void findButton_Click(object sender, EventArgs e)
+        private void FindButton_Click(object sender, EventArgs e)
         {
 	        if (_worker.IsBusy) return;
             cancelButton.Visible = true;
@@ -149,7 +149,7 @@ namespace osu_cleaner
             _worker.RunWorkerAsync();
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
+        private void CancelButton_Click(object sender, EventArgs e)
         {
             if (_worker.IsBusy)
                 _worker.CancelAsync();
@@ -159,7 +159,7 @@ namespace osu_cleaner
                 _pixelWorker.CancelAsync();
         }
 
-        private void selectAllButton_Click(object sender, EventArgs e)
+        private void SelectAllButton_Click(object sender, EventArgs e)
         {
             for (var i = 0; i < elementList.Items.Count; i++)
                 elementList.SetItemChecked(i, true);
@@ -174,24 +174,11 @@ namespace osu_cleaner
                 "Selected for removal: " + Math.Round((double) _forRemovalSize / 1048576, 4) + " MB";
         }
 
-        private void deselectAllButton_Click(object sender, EventArgs e)
+        private void DeselectAllButton_Click(object sender, EventArgs e)
         {
             for (var i = 0; i < elementList.Items.Count; i++)
                 elementList.SetItemChecked(i, false);
             _forRemovalSize = 0;
-            forRemovalSizeLabel.Text =
-                "Selected for removal: " + Math.Round((double) _forRemovalSize / 1048576, 4) + " MB";
-        }
-
-        private void elementList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _forRemovalSize = 0;
-            foreach (string file in elementList.CheckedItems)
-            {
-                var sizeInfo = new FileInfo(file);
-                _forRemovalSize += sizeInfo.Length;
-            }
-
             forRemovalSizeLabel.Text =
                 "Selected for removal: " + Math.Round((double) _forRemovalSize / 1048576, 4) + " MB";
         }
@@ -201,7 +188,7 @@ namespace osu_cleaner
             if (DeletePermanentlyCheckbox.Checked) moveCheckBox.Checked = false;
         }
 
-        private void moveCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void MoveCheckBox_CheckedChanged(object sender, EventArgs e)
         {
 	        if (moveCheckBox.Checked) DeletePermanentlyCheckbox.Checked = false;
 	        deleteButton.Text = moveCheckBox.Checked ? "Move" : "Delete";
@@ -213,12 +200,13 @@ namespace osu_cleaner
             return r.IsMatch(str);
         }
 
+        private string SongsFolder = "";
         private void FindElements(object sender, DoWorkEventArgs e)
         {
             int folderCount;
             try
             {
-                folderCount = Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")).Length;
+                folderCount = Directory.GetDirectories(SongsFolder).Length;
             }
             catch (DirectoryNotFoundException)
             {
@@ -229,7 +217,7 @@ namespace osu_cleaner
 
             Console.WriteLine(folderCount);
             var current = 0;
-            foreach (var d in Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")))
+            foreach (var d in Directory.GetDirectories(SongsFolder))
             {
                 if (!allUncommon.Checked && sbDeleteCheckbox.Checked)
                 {
@@ -251,11 +239,9 @@ namespace osu_cleaner
                                 if (!whitelist.Contains(sbElement))
                                 {
                                     var size = GetFileSize(d + sbElement);
-                                    if (size != 0)
-                                    {
-                                        _foundElements.Add(d + sbElement);
-                                        _filesSize += size;
-                                    }
+                                    if (size == 0) continue;
+                                    _foundElements.Add(d + sbElement);
+                                    _filesSize += size;
                                 }
                         }
                 }
@@ -338,12 +324,9 @@ namespace osu_cleaner
                             _filesSize += GetFileSize(file);
                         }
 
-                    if (bloatExtraDeleteBox.Checked)
-                        if (RegexMatch(fileName, "(thumbs.db|desktop.ini|ds_store)$"))
-                        {
-                            _foundElements.Add(file);
-                            _filesSize += GetFileSize(file);
-                        }
+                    if (!bloatExtraDeleteBox.Checked || !RegexMatch(fileName, "(thumbs.db|desktop.ini|ds_store)$")) continue;
+                    _foundElements.Add(file);
+                    _filesSize += GetFileSize(file);
                 }
 
                 if (_worker.CancellationPending) return;
@@ -459,7 +442,7 @@ namespace osu_cleaner
             }
         }
 
-        private void allUncommon_CheckedChanged(object sender, EventArgs e)
+        private void AllUncommon_CheckedChanged(object sender, EventArgs e)
         {
             var bChecked = allUncommon.Checked;
             bloatExtraDeleteBox.Enabled = !bChecked;
@@ -471,25 +454,25 @@ namespace osu_cleaner
         }
 
         // Context menu
-        private void tsCopyFilePath_Click(object sender, EventArgs e)
+        private void TsCopyFilePath_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(_selectedMenuItem);
         }
 
-        private void tsOpenFolder_Click(object sender, EventArgs e)
+        private void TsOpenFolder_Click(object sender, EventArgs e)
         {
             if (!File.Exists(_selectedMenuItem)) return;
             var fileFullPath = Path.GetFullPath(_selectedMenuItem);
             Process.Start("explorer.exe", $"/select,\"{fileFullPath}\"");
         }
 
-        private void tsOpenFile_Click(object sender, EventArgs e)
+        private void TsOpenFile_Click(object sender, EventArgs e)
         {
             if (!File.Exists(_selectedMenuItem)) return;
             Process.Start(_selectedMenuItem);
         }
 
-        private void elementList_MouseDown(object sender, MouseEventArgs e)
+        private void ElementList_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
             var index = elementList.IndexFromPoint(e.Location);
@@ -506,7 +489,7 @@ namespace osu_cleaner
             }
         }
 
-        private void deleteButton_Click(object sender, EventArgs e)
+        private void DeleteButton_Click(object sender, EventArgs e)
         {
             if (moveCheckBox.Checked) Directory.CreateDirectory(Path.Combine(directoryPath.Text, "Cleaned"));
             FindProgressBar.Show();
@@ -540,7 +523,7 @@ namespace osu_cleaner
                         if (fileInfo.Directory != null)
                         {
                             var relativePath = fileInfo.Directory.FullName.Replace(
-                                Path.Combine(directoryPath.Text, "Songs"), Path.Combine(directoryPath.Text, "Cleaned"));
+	                            SongsFolder, Path.Combine(directoryPath.Text, "Cleaned"));
                             Directory.CreateDirectory(relativePath);
                             File.Move(file, Path.Combine(relativePath, fileInfo.Name));
                         }
@@ -638,51 +621,55 @@ namespace osu_cleaner
         }
 
 
-        private void openMoved_Click(object sender, EventArgs e)
+        private void OpenMoved_Click(object sender, EventArgs e)
         {
             Process.Start(Path.Combine(directoryPath.Text, "Cleaned"));
         }
 
-        private void lblTCNOWeb_MouseDown(object sender, MouseEventArgs e)
+        private void LblTCNOWeb_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://tcno.co");
         }
-        private void lblTechNobo_MouseDown(object sender, MouseEventArgs e)
+        private void LblTechNobo_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
         }
 
-        private void lblHenntix_MouseDown(object sender, MouseEventArgs e)
+        private void LblHenntix_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://github.com/henntix/osu-Cleaner");
         }
 
-        private void logoBox_MouseLeave(object sender, EventArgs e)
+        private void LogoBox_MouseLeave(object sender, EventArgs e)
         {
             logoBox.Image = Resources.osu_cleaner_logo_256;
         }
 
-        private void logoBox_MouseDown(object sender, MouseEventArgs e)
+        private void LogoBox_MouseDown(object sender, MouseEventArgs e)
         {
             Process.Start("https://github.com/TcNobo/TcNo-osu-Cleaner");
             logoBox.Image = Resources.osu_cleaner_logo_256_click;
         }
 
-        private void logoBox_HoverImage(object sender, EventArgs e)
+        private void LogoBox_HoverImage(object sender, EventArgs e)
         {
             logoBox.Image = Resources.osu_cleaner_logo_256_hover;
         }
 
-        private void linkLabel_MouseEnter(object sender, EventArgs e)
+        private void LinkLabel_MouseEnter(object sender, EventArgs e)
         {
             var tssl = (ToolStripStatusLabel)sender;
             tssl.LinkColor = Color.FromArgb(138, 255, 128);
+            tssl.ForeColor = Color.FromArgb(138, 255, 128);
+            this.Cursor = Cursors.Hand;
         }
 
-        private void linkLabel_MouseLeave(object sender, EventArgs e)
+        private void LinkLabel_MouseLeave(object sender, EventArgs e)
         {
             var tssl = (ToolStripStatusLabel)sender;
             tssl.LinkColor = Color.FromArgb(248, 248, 242);
+            tssl.ForeColor = Color.FromArgb(230, 100, 158); // For the username text
+            this.Cursor = Cursors.Default;
         }
 
         private void DeleteComplete(object sender, RunWorkerCompletedEventArgs e)
@@ -692,14 +679,11 @@ namespace osu_cleaner
             FindProgressBar.Hide();
             if (moveCheckBox.Checked) openMoved.Visible = true;
         }
-
-
-
-        private void symlinkButton_Click(object sender, EventArgs e)
+        
+        private void SymlinkButton_Click(object sender, EventArgs e)
         {
-            var songsFolder = Path.Combine(directoryPath.Text, "Songs");
-            var isSymlink = new DirectoryInfo(songsFolder).IsSymbolicLink();
-            var isJunction = JunctionPoint.Exists(songsFolder);
+            var isSymlink = new DirectoryInfo(SongsFolder).IsSymbolicLink();
+            var isJunction = JunctionPoint.Exists(SongsFolder);
             if (isSymlink || isJunction)
             {
                 MessageBox.Show(this, "The Songs folder is already a symlink/junction!", "Notice!",
@@ -715,60 +699,105 @@ namespace osu_cleaner
                 SelectedPath = directoryPath.Text
             };
             var path = folder.ShowDialog();
-            if (path == DialogResult.OK)
+            if (path != DialogResult.OK) return;
+            var fo = new InteropShFileOperation
             {
-                var fo = new InteropShFileOperation
-                {
-                    WFunc = InteropShFileOperation.FoFunc.FO_MOVE,
-                    FFlags =
-                    {
-                        FofAllowundo = false,
-                        FofNoconfirmation = true,
-                        FofNoerrorui = false,
-                        FofSilent = false
-                    },
-                    PFrom = songsFolder,
-                    PTo = Path.Combine(folder.SelectedPath, "Songs")
-                };
-                if (fo.Execute())
-                {
-                    // Success
-                    JunctionPoint.Create(songsFolder, Path.Combine(folder.SelectedPath, "Songs"), true);
-                    MessageBox.Show(this, "Moved files, and created symlink junction correctly!", "Success!",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-                }
-                else
-                {
-                    MessageBox.Show(this, "Failed to copy files", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error,
-                        MessageBoxDefaultButton.Button1);
-                }
+	            WFunc = InteropShFileOperation.FoFunc.FO_MOVE,
+	            FFlags =
+	            {
+		            FofAllowundo = false,
+		            FofNoconfirmation = true,
+		            FofNoerrorui = false,
+		            FofSilent = false
+	            },
+	            PFrom = SongsFolder,
+	            PTo = folder.SelectedPath
+            };
+            if (fo.Execute())
+            {
+	            // Success
+	            JunctionPoint.Create(SongsFolder, folder.SelectedPath, true);
+	            MessageBox.Show(this, "Moved files, and created symlink junction correctly!", "Success!",
+		            MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+            }
+            else
+            {
+	            MessageBox.Show(this, "Failed to copy files", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error,
+		            MessageBoxDefaultButton.Button1);
             }
         }
 
-		private void logoBox_HoverImage(object sender, MouseEventArgs e)
-		{
-
-		}
-
 		private string _userCfgFile = "";
-        private void directoryPath_TextChanged(object sender, EventArgs e)
+
+		private void FindAccount()
 		{
-			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
-			if (configFiles.Length == 2)
-				_userCfgFile = configFiles[1].Name;
-            else if (configFiles.Length > 1)
-            {
-	            // Notify user as well if auto picked what it will do.
-                var su = new SelectUser(directoryPath.Text);
-                var result = su.ShowDialog();
-                if (result == DialogResult.OK)
+			SelectUser su = null;
+
+            while (true)
+			{
+				var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
+				if (configFiles.Length == 2)
 				{
-					_userCfgFile = su.ReturnedUsername;
+					_userCfgFile = configFiles[1].Name;
+					lblCurrentAccount.Text = "Current account: " + _userCfgFile.Substring(5, _userCfgFile.Length - 9);
 				}
+				else if (configFiles.Length > 1)
+				{
+                    // Notify user as well if auto picked what it will do.
+                    if (su == null) su = new SelectUser(directoryPath.Text)
+					{
+						StartPosition = FormStartPosition.CenterScreen
+					};
+					var result = su.ShowDialog();
+
+					if (result != DialogResult.OK)
+					{
+						MessageBox.Show(this, "You need to pick a username!", "No username selected", MessageBoxButtons.OK,
+							MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+						continue;
+					}
+					_userCfgFile = su.ReturnedFilename;
+					lblCurrentAccount.Text = "Current account: " + su.ReturnedUsername;
+					break;
+				}
+
+				FindSongsFolder();
             }
 		}
 
-		private void btnReplaceMissing_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Finds the user's Songs folder, based on what's set in the config file.
+        /// </summary>
+		private void FindSongsFolder()
+		{
+			var file = new StreamReader(Path.Combine(directoryPath.Text, _userCfgFile));
+			string line;
+			while ((line = file.ReadLine()) != null)
+			{
+				if (line.StartsWith("BeatmapDirectory"))
+				{
+					var songsPath = line.Split('=')[1];
+					songsPath = songsPath.Substring(1, songsPath.Length - 1);
+                    // I can't get it to work with absolute paths, but this is here just incase.
+					SongsFolder = songsPath.Contains(@":\\") ? songsPath.Replace("\"", "") : Path.Combine(directoryPath.Text, songsPath.Replace("\"", ""));
+                    break;
+				}
+			}
+
+			file.Close();
+        }
+
+        private void DirectoryPath_TextChanged(object sender, EventArgs e)
+        {
+	        FindAccount();
+        }
+
+		private void LblCurrentAccount_Click(object sender, EventArgs e)
+		{
+			FindAccount();
+        }
+
+		private void BtnReplaceMissing_Click(object sender, EventArgs e)
         {
             FindProgressBar.Show();
             _pixelWorker.RunWorkerAsync();
@@ -780,7 +809,7 @@ namespace osu_cleaner
             int folderCount;
             try
             {
-                folderCount = Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")).Length;
+                folderCount = Directory.GetDirectories(SongsFolder).Length;
             }
             catch (DirectoryNotFoundException)
             {
@@ -793,7 +822,7 @@ namespace osu_cleaner
             var current = 0;
             var backgrounds = new List<string>();
             var missingBgCount = 0;
-            foreach (var d in Directory.GetDirectories(Path.Combine(directoryPath.Text, "Songs")))
+            foreach (var d in Directory.GetDirectories(SongsFolder))
             {
                 // Collect all backgrounds
                 foreach (var file in Directory.GetFiles(d))

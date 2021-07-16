@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="lblWhyUsername.Text" xml:space="preserve">
+    <value>Why do I need to pick a username?
+Well, you've signed in with multiple accounts.
+You can open the osu! folder\osu!&lt;user&gt;.cfg.
+Near the top you will see "BeatmapDirectory".
+
+This can be set to another folder in the osu! directory.
+Song scanning needs to be account specific.</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

@@ -33,6 +33,8 @@ namespace osu_cleaner.Properties
 			this.lblUsername = new DarkUI.Controls.DarkLabel();
 			this.btnUsernameOK = new DarkUI.Controls.DarkButton();
 			this.listAccounts = new System.Windows.Forms.ListBox();
+			this.lblWhyUsername = new System.Windows.Forms.Label();
+			this.btnWhyUsername = new DarkUI.Controls.DarkButton();
 			this.SuspendLayout();
 			// 
 			// lblUsername
@@ -53,7 +55,7 @@ namespace osu_cleaner.Properties
 			this.btnUsernameOK.Size = new System.Drawing.Size(75, 23);
 			this.btnUsernameOK.TabIndex = 2;
 			this.btnUsernameOK.Text = "OK";
-			this.btnUsernameOK.Click += new System.EventHandler(this.btnUsernameOK_Click);
+			this.btnUsernameOK.Click += new System.EventHandler(this.BtnUsernameOK_Click);
 			// 
 			// listAccounts
 			// 
@@ -65,12 +67,34 @@ namespace osu_cleaner.Properties
 			this.listAccounts.Size = new System.Drawing.Size(280, 95);
 			this.listAccounts.TabIndex = 3;
 			// 
+			// lblWhyUsername
+			// 
+			this.lblWhyUsername.AutoSize = true;
+			this.lblWhyUsername.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(242)))));
+			this.lblWhyUsername.Location = new System.Drawing.Point(12, 162);
+			this.lblWhyUsername.Name = "lblWhyUsername";
+			this.lblWhyUsername.Size = new System.Drawing.Size(258, 91);
+			this.lblWhyUsername.TabIndex = 4;
+			this.lblWhyUsername.Text = resources.GetString("lblWhyUsername.Text");
+			// 
+			// btnWhyUsername
+			// 
+			this.btnWhyUsername.Location = new System.Drawing.Point(12, 126);
+			this.btnWhyUsername.Name = "btnWhyUsername";
+			this.btnWhyUsername.Padding = new System.Windows.Forms.Padding(5);
+			this.btnWhyUsername.Size = new System.Drawing.Size(75, 23);
+			this.btnWhyUsername.TabIndex = 5;
+			this.btnWhyUsername.Text = "Why?";
+			this.btnWhyUsername.Click += new System.EventHandler(this.BtnWhyUsername_Click);
+			// 
 			// SelectUser
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
 			this.ClientSize = new System.Drawing.Size(304, 161);
+			this.Controls.Add(this.btnWhyUsername);
+			this.Controls.Add(this.lblWhyUsername);
 			this.Controls.Add(this.listAccounts);
 			this.Controls.Add(this.btnUsernameOK);
 			this.Controls.Add(this.lblUsername);
@@ -89,5 +113,7 @@ namespace osu_cleaner.Properties
 		private DarkUI.Controls.DarkLabel lblUsername;
 		private DarkUI.Controls.DarkButton btnUsernameOK;
 		private System.Windows.Forms.ListBox listAccounts;
+		private System.Windows.Forms.Label lblWhyUsername;
+		private DarkUI.Controls.DarkButton btnWhyUsername;
 	}
 }

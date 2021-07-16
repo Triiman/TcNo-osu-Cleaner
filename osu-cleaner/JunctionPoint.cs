@@ -217,15 +217,17 @@ namespace Monitor.Core.Utilities
             {
                 var targetDirBytes = Encoding.Unicode.GetBytes(NonInterpretedPathPrefix + Path.GetFullPath(targetDir));
 
-                var reparseDataBuffer = new ReparseDataBuffer();
+                var reparseDataBuffer = new ReparseDataBuffer
+                {
+	                ReparseTag = IoReparseTagMountPoint,
+	                ReparseDataLength = (ushort) (targetDirBytes.Length + 12),
+	                SubstituteNameOffset = 0,
+	                SubstituteNameLength = (ushort) targetDirBytes.Length,
+	                PrintNameOffset = (ushort) (targetDirBytes.Length + 2),
+	                PrintNameLength = 0,
+	                PathBuffer = new byte[0x3ff0]
+                };
 
-                reparseDataBuffer.ReparseTag = IoReparseTagMountPoint;
-                reparseDataBuffer.ReparseDataLength = (ushort)(targetDirBytes.Length + 12);
-                reparseDataBuffer.SubstituteNameOffset = 0;
-                reparseDataBuffer.SubstituteNameLength = (ushort)targetDirBytes.Length;
-                reparseDataBuffer.PrintNameOffset = (ushort)(targetDirBytes.Length + 2);
-                reparseDataBuffer.PrintNameLength = 0;
-                reparseDataBuffer.PathBuffer = new byte[0x3ff0];
                 Array.Copy(targetDirBytes, reparseDataBuffer.PathBuffer, targetDirBytes.Length);
 
                 var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
@@ -235,9 +237,8 @@ namespace Monitor.Core.Utilities
                 {
                     Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
 
-                    int bytesReturned;
                     var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlSetReparsePoint,
-                        inBuffer, targetDirBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
+                        inBuffer, targetDirBytes.Length + 20, IntPtr.Zero, 0, out _, IntPtr.Zero);
 
                     if (!result)
                         ThrowLastWin32Error("Unable to create junction point.");
@@ -269,38 +270,38 @@ namespace Monitor.Core.Utilities
 
             using (var handle = OpenReparsePoint(junctionPoint, EFileAccess.GenericWrite))
             {
-                var reparseDataBuffer = new ReparseDataBuffer();
+	            var reparseDataBuffer = new ReparseDataBuffer
+	            {
+		            ReparseTag = IoReparseTagMountPoint,
+		            ReparseDataLength = 0,
+		            PathBuffer = new byte[0x3ff0]
+	            };
 
-                reparseDataBuffer.ReparseTag = IoReparseTagMountPoint;
-                reparseDataBuffer.ReparseDataLength = 0;
-                reparseDataBuffer.PathBuffer = new byte[0x3ff0];
+	            var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
+	            var inBuffer = Marshal.AllocHGlobal(inBufferSize);
+	            try
+	            {
+		            Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
 
-                var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
-                var inBuffer = Marshal.AllocHGlobal(inBufferSize);
-                try
-                {
-                    Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
+		            var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlDeleteReparsePoint,
+			            inBuffer, 8, IntPtr.Zero, 0, out _, IntPtr.Zero);
 
-                    int bytesReturned;
-                    var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlDeleteReparsePoint,
-                        inBuffer, 8, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
+		            if (!result)
+			            ThrowLastWin32Error("Unable to delete junction point.");
+	            }
+	            finally
+	            {
+		            Marshal.FreeHGlobal(inBuffer);
+	            }
+            }
 
-                    if (!result)
-                        ThrowLastWin32Error("Unable to delete junction point.");
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(inBuffer);
-                }
-
-                try
-                {
-                    Directory.Delete(junctionPoint);
-                }
-                catch (IOException ex)
-                {
-                    throw new IOException("Unable to delete junction point.", ex);
-                }
+            try
+            {
+	            Directory.Delete(junctionPoint);
+            }
+            catch (IOException ex)
+            {
+	            throw new IOException("Unable to delete junction point.", ex);
             }
         }
 
@@ -352,9 +353,8 @@ namespace Monitor.Core.Utilities
 
             try
             {
-                int bytesReturned;
-                var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlGetReparsePoint,
-                    IntPtr.Zero, 0, outBuffer, outBufferSize, out bytesReturned, IntPtr.Zero);
+	            var result = DeviceIoControl(handle.DangerousGetHandle(), FsctlGetReparsePoint,
+                    IntPtr.Zero, 0, outBuffer, outBufferSize, out _, IntPtr.Zero);
 
                 if (!result)
                 {

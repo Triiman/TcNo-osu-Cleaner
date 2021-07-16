@@ -41,16 +41,17 @@ namespace osu_cleaner
             var progress = (float) (Value / (double) Maximum);
             if (progress <= 0.95) // Prevents blurry progress bar freezing at end
             {
-                LinearGradientBrush brush = null;
-                var bounds = new Rectangle(0, 0, Width, Height);
+	            var bounds = new Rectangle(0, 0, Width, Height);
 
                 var bgc = Color.FromArgb(68, 71, 90);
                 var fgc = Color.FromArgb(255, 128, 191);
-                brush = new LinearGradientBrush(new Point(0, 0), new Point(bounds.Width, 0), fgc, bgc);
+                var brush = new LinearGradientBrush(new Point(0, 0), new Point(bounds.Width, 0), fgc, bgc);
 
-                var cblend = new ColorBlend(3);
-                cblend.Colors = new Color[4] {fgc, fgc, bgc, bgc};
-                cblend.Positions = new float[4] {0f, progress, progress, 1f};
+                var cblend = new ColorBlend(3)
+                {
+	                Colors = new Color[4] {fgc, fgc, bgc, bgc},
+	                Positions = new float[4] {0f, progress, progress, 1f}
+                };
 
                 brush.InterpolationColors = cblend;
 
@@ -90,34 +91,15 @@ namespace osu_cleaner
                 var dx = (e.Bounds.Height - checkSize.Width) / 2;
                 e.DrawBackground();
                 var isChecked = GetItemChecked(e.Index);
-                //CheckBoxRenderer.DrawCheckBox(e.Graphics, new Point(dx, e.Bounds.Top + dx), isChecked ? System.Windows.Forms.VisualStyles.CheckBoxState.CheckedNormal : System.Windows.Forms.VisualStyles.CheckBoxState.UncheckedNormal);
-
+                
                 var rect = new Rectangle(dx + 1, e.Bounds.Top + dx, 13, 13);
 
-                var size = Consts.CheckBoxSize;
-
-                var textColor = Colors.LightText;
                 var borderColor = Colors.LightText;
                 var fillColor = Colors.LightestBackground;
-
-                //if (Enabled)
-                //{
-                //    if (GetSelected(e.Index))
-                //    {
-                //        borderColor = Colors.BlueHighlight;
-                //        fillColor = Colors.BlueSelection;
-                //    }
-                //    if (_controlState == DarkControlState.Pressed && GetSelected(e.Index))
-                //    {
-                //        borderColor = Colors.GreyHighlight;
-                //        fillColor = Colors.GreySelection;
-                //    }
-                //}
-                //else
+                
                 if (!Enabled)
                 {
-                    textColor = Colors.DisabledText;
-                    borderColor = Colors.GreyHighlight;
+	                borderColor = Colors.GreyHighlight;
                     fillColor = Colors.GreySelection;
                 }
 
@@ -138,16 +120,7 @@ namespace osu_cleaner
                         var boxRect = new Rectangle(rect.X + 2, rect.Y + 2, 10, 10);
                         bg.Graphics.FillRectangle(b, boxRect);
                     }
-
-                using (var b = new SolidBrush(textColor))
-                {
-                    var stringFormat = new StringFormat
-                    {
-                        LineAlignment = StringAlignment.Center,
-                        Alignment = StringAlignment.Near
-                    };
-                }
-
+                
                 using (var sf = new StringFormat {LineAlignment = StringAlignment.Center})
                 {
                     using (Brush brush = new SolidBrush(isChecked ? Color.FromArgb(255, 128, 191) : ForeColor))
