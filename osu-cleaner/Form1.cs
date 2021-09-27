@@ -38,7 +38,7 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-	    private const string _versionNumber = "2.3";
+	    private const string _versionNumber = "2.4";
 	    private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -733,36 +733,37 @@ namespace osu_cleaner
 		{
 			SelectUser su = null;
 
-            while (true)
+            
+			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
+			if (configFiles.Length == 2)
 			{
-				var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
-				if (configFiles.Length == 2)
-				{
-					_userCfgFile = configFiles[1].Name;
-					lblCurrentAccount.Text = "Current account: " + _userCfgFile.Substring(5, _userCfgFile.Length - 9);
-				}
-				else if (configFiles.Length > 1)
-				{
+				_userCfgFile = configFiles[1].Name;
+				lblCurrentAccount.Text = "Current account: " + _userCfgFile.Substring(5, _userCfgFile.Length - 9);
+			}
+			else if (configFiles.Length > 1)
+			{
+                while (true)
+                {
                     // Notify user as well if auto picked what it will do.
                     if (su == null) su = new SelectUser(directoryPath.Text)
-					{
-						StartPosition = FormStartPosition.CenterScreen
-					};
-					var result = su.ShowDialog();
+                    {
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+                    var result = su.ShowDialog();
 
-					if (result != DialogResult.OK)
-					{
-						MessageBox.Show(this, "You need to pick a username!", "No username selected", MessageBoxButtons.OK,
-							MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-						continue;
-					}
-					_userCfgFile = su.ReturnedFilename;
-					lblCurrentAccount.Text = "Current account: " + su.ReturnedUsername;
-					break;
-				}
+                    if (result != DialogResult.OK)
+                    {
+                        MessageBox.Show(this, "You need to pick a username!", "No username selected", MessageBoxButtons.OK,
+                            MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        continue;
+                    }
+                    _userCfgFile = su.ReturnedFilename;
+                    lblCurrentAccount.Text = "Current account: " + su.ReturnedUsername;
+                    break;
+                }
+			}
 
-				FindSongsFolder();
-            }
+			FindSongsFolder();
 		}
 
         /// <summary>
@@ -797,7 +798,16 @@ namespace osu_cleaner
 			FindAccount();
         }
 
-		private void BtnReplaceMissing_Click(object sender, EventArgs e)
+        private void btnManageReplays_Click(object sender, EventArgs e)
+        {
+            var mr = new ManageReplays(directoryPath.Text)
+            {
+                StartPosition = FormStartPosition.CenterScreen
+            };
+            mr.ShowDialog();
+        }
+
+        private void BtnReplaceMissing_Click(object sender, EventArgs e)
         {
             FindProgressBar.Show();
             _pixelWorker.RunWorkerAsync();

@@ -51,8 +51,7 @@
     <ApplicationIcon>osu_cleaner_logo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DarkUI, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="DarkUI">
       <HintPath>..\..\DarkUI\DarkUI\bin\Release\DarkUI.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
@@ -81,6 +80,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="JunctionPoint.cs" />
+    <Compile Include="ManageReplays.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManageReplays.Designer.cs">
+      <DependentUpon>ManageReplays.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectUser.cs">
@@ -94,6 +99,9 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ManageReplays.resx">
+      <DependentUpon>ManageReplays.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
@@ -102,7 +110,6 @@
     <EmbeddedResource Include="SelectUser.resx">
       <DependentUpon>SelectUser.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
