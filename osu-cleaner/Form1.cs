@@ -679,7 +679,7 @@ namespace osu_cleaner
             FindProgressBar.Hide();
             if (moveCheckBox.Checked) openMoved.Visible = true;
         }
-        
+
         private void SymlinkButton_Click(object sender, EventArgs e)
         {
             var isSymlink = new DirectoryInfo(SongsFolder).IsSymbolicLink();
@@ -733,13 +733,14 @@ namespace osu_cleaner
 		{
 			SelectUser su = null;
 
-            
+
 			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
 			if (configFiles.Length == 2)
 			{
 				_userCfgFile = configFiles[1].Name;
 				lblCurrentAccount.Text = "Current account: " + _userCfgFile.Substring(5, _userCfgFile.Length - 9);
-			}
+                FindSongsFolder();
+            }
 			else if (configFiles.Length > 1)
 			{
                 while (true)
@@ -761,9 +762,19 @@ namespace osu_cleaner
                     lblCurrentAccount.Text = "Current account: " + su.ReturnedUsername;
                     break;
                 }
-			}
-
-			FindSongsFolder();
+                FindSongsFolder();
+            }
+            else if (!Directory.Exists(Path.Combine(directoryPath.Text, "Songs")))
+            {
+                MessageBox.Show("A user needs to be logged into osu! to continue. There is no 'osu!<user>.cfg' file!",
+                    "Error!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(0);
+            }
+            else
+            {
+                SongsFolder = Path.Combine(directoryPath.Text, "Songs");
+            }
 		}
 
         /// <summary>
@@ -860,10 +871,10 @@ namespace osu_cleaner
                 current++;
                 _pixelWorker.ReportProgress((int)((double)current / missingBgCount * 100));
                 filesSizeLabel.Invoke(() => { filesSizeLabel.Text = "(Step 2 of 2) Copied 1x1px images to: " + current + " of " + missingBgCount + " folders."; });
-                
+
                 Resources.pixel.Save(bg);
             }
-            
+
             _pixelWorker.ReportProgress(100);
             progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
             MessageBox.Show(
