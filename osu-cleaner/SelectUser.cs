@@ -27,7 +27,7 @@ namespace osu_cleaner.Properties
 		private void SelectUser_Load(object sender, EventArgs e)
 		{
 			if (listAccounts.Items.Count != 0) return;
-			foreach (var f in new DirectoryInfo(_installDir).GetFiles("osu!*.cfg"))
+			foreach (var f in new DirectoryInfo(_installDir).GetFiles("osu!*.cfg").OrderBy(f => f.Name).ToArray())
 			{
 				if (f.Name == "osu!.cfg") continue;
 				var user = f.Name.Substring(5, f.Name.Length - 9);

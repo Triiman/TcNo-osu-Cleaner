@@ -26,7 +26,7 @@ namespace osu_cleaner
             _replayDir = Path.Combine(replayDir, "Data\\r\\");
 
             if (Directory.Exists(_replayDir)) return;
-            
+
             MessageBox.Show("No replay directory", "Can not find replay directory", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             Close();
@@ -123,7 +123,7 @@ namespace osu_cleaner
 
             listAccounts.Visible = true;
             lblStatus.Text = "2. Select an account and then an action below:";
-            
+
             foreach (var k in _replaysDictionary.Keys)
             {
                 listAccounts.Items.Add(k + " - " + _replaysDictionary[k].Count + " - " + Math.Round((double)_sizesDictionary[k] / 1048576, 4) + " MB");
@@ -138,7 +138,7 @@ namespace osu_cleaner
             var replayFiles = Directory.GetFiles(_replayDir, "*.osr");
             var replayFilesLen = replayFiles.Length;
             //pbScan.Maximum = replayFilesLen;
-            
+
             for (var i = 0; i < replayFilesLen - 1; i++)
             {
                 var user = GetReplayUsername(replayFiles[i]);

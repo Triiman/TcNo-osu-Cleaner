@@ -38,7 +38,7 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-	    private const string _versionNumber = "2.4";
+	    private const string _versionNumber = "2.4.1";
 	    private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -734,17 +734,19 @@ namespace osu_cleaner
 			SelectUser su = null;
 
 
-			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg");
+			var configFiles = new DirectoryInfo(directoryPath.Text).GetFiles("osu!*.cfg").OrderBy(f => f.Name).ToArray();
 			if (configFiles.Length == 2)
 			{
-				_userCfgFile = configFiles[1].Name;
+				_userCfgFile = configFiles[1].Name == "osu!.cfg" ? configFiles[0].Name : configFiles[1].Name;
 				lblCurrentAccount.Text = "Current account: " + _userCfgFile.Substring(5, _userCfgFile.Length - 9);
                 FindSongsFolder();
             }
 			else if (configFiles.Length > 1)
-			{
+            {
+                int attempts = 0;
                 while (true)
                 {
+                    attempts++;
                     // Notify user as well if auto picked what it will do.
                     if (su == null) su = new SelectUser(directoryPath.Text)
                     {
@@ -754,6 +756,13 @@ namespace osu_cleaner
 
                     if (result != DialogResult.OK)
                     {
+                        if (attempts >= 2)
+                        {
+                            MessageBox.Show(this, "You need to pick a username! Exiting.", "No username selected", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                            Environment.Exit(0);
+                        }
+
                         MessageBox.Show(this, "You need to pick a username!", "No username selected", MessageBoxButtons.OK,
                             MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                         continue;
