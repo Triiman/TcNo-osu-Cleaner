@@ -38,7 +38,7 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-	    private const string _versionNumber = "2.4.1";
+	    private const string _versionNumber = "2.4.2";
 	    private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -58,6 +58,15 @@ namespace osu_cleaner
             Text = $"cln! (osu!Cleaner by TechNobo) v{_versionNumber}";
 
             directoryPath.Text = GetOsuPath();
+
+            if (directoryPath.Text == "")
+            {
+                MessageBox.Show("Please locate osu!'s folder (contains osu!.exe)", "Could not find osu!.exe",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FindInstallDir();
+                directoryPath.Text = GetOsuPath();
+            }
+
             _worker = new BackgroundWorker()
             {
                 WorkerReportsProgress = true,
@@ -106,13 +115,16 @@ namespace osu_cleaner
             elementList.Items.Clear();
         }
 
-        private void DirectorySelectButton_Click(object sender, EventArgs e)
+        private void DirectorySelectButton_Click(object sender, EventArgs e) => FindInstallDir();
+
+        private void FindInstallDir()
         {
+            // TODO: Swap this for a locate osu!.exe browser. Easier to select a folder that way.
             var folder = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false,
                 RootFolder = Environment.SpecialFolder.MyComputer,
-                Description = "Select an osu! root directory:",
+                Description = "Select an osu! root directory (contains osu!.exe):",
                 SelectedPath = directoryPath.Text
             };
             var path = folder.ShowDialog();
@@ -126,7 +138,7 @@ namespace osu_cleaner
                         dlg.ShowDialog();
                     }
 
-                    DirectorySelectButton_Click(sender, e);
+                    FindInstallDir();
                     return;
                 }
 
@@ -369,8 +381,7 @@ namespace osu_cleaner
                 var osuKey = osuReg.GetValue(null).ToString();
                 var osuPath = osuKey.Remove(0, 1);
                 osuPath = osuPath.Remove(osuPath.Length - 11);
-                return osuPath;
-
+                return Directory.Exists(osuPath) ? osuPath : "";
             }
         }
 
