@@ -250,3 +250,5 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+osu-cleaner/TcNo-osu-cleaner .csproj.post
+.vscode/settings.json
