@@ -28,16 +28,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
-  <PropertyGroup> 
-
-    <GenerateResourceMSBuildArchitecture>CurrentArchitecture</GenerateResourceMSBuildArchitecture>
-    <GenerateResourceMSBuildRuntime>CurrentRuntime</GenerateResourceMSBuildRuntime>
-    
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
@@ -78,10 +68,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-  <Reference Include="System.Resources.Extensions">
-    <HintPath>$(ProgramFiles)\dotnet\sdk\8.0.303\System.Resources.Extensions.dll</HintPath>
-  </Reference>
-</ItemGroup>
+    <Reference Include="System.Resources.Extensions">
+      <HintPath>.\System.Resources.Extension\System.Resources.Extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryInfoExtensions.cs" />
     <Compile Include="FileInfoExtensions.cs" />
