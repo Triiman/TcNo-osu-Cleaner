@@ -564,7 +564,7 @@ namespace osu_cleaner
             // 
             this.logoBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.logoBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            /* this.logoBox.Image = global::osu_cleaner.Properties.Resources.osu_cleaner_logo_256; */
+            this.logoBox.Image = global::osu_cleaner.Properties.Resources.osu_cleaner_logo_256;
             this.logoBox.ImageLocation = "";
             this.logoBox.Location = new System.Drawing.Point(3, 3);
             this.logoBox.Name = "logoBox";
@@ -666,7 +666,7 @@ namespace osu_cleaner
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.ClientSize = new System.Drawing.Size(830, 754);
             this.Controls.Add(this.tblEntireForm);
-            /* this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon"))); */
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(846, 442);
             this.Name = "MainApp";
             this.Text = "cln! (osu!Cleaner by TechNobo)";

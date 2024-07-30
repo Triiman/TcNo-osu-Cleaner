@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Forms;
 using Microsoft.VisualBasic.FileIO;
@@ -582,14 +583,13 @@ namespace osu_cleaner
             _listUpdater.RunWorkerAsync();
 
             var delete = new List<string>();
-            foreach (string file in elementList.CheckedItems
-            ) //adding items to temporary collection to let me delete items from on-screen list
+            foreach (string file in elementList.CheckedItems) //adding items to temporary collection to let me delete items from on-screen list
                 delete.Add(file);
 
             var totalToDelete = delete.Count;
             var current = 0;
 
-            foreach (var file in delete)
+            Parallel.ForEach(delete, file =>
             {
                 try
                 {
@@ -614,7 +614,7 @@ namespace osu_cleaner
                         FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                     }
 
-                    current++;
+                    Interlocked.Increment(ref current);
                 }
                 catch (FileNotFoundException)
                 {
@@ -624,8 +624,6 @@ namespace osu_cleaner
                 }
 
                 // Prevent cross-thread errors
-                //elementList.Invoke(() => { elementList.Items.Remove(file); }); // This flickers A LOT!
-                //elementList.Invoke(() => { elementList.BeginUpdate(); elementList.Items.Remove(file); elementList.EndUpdate(); }); // This flickers A LOT!
                 QueueRemoveString(file);
 
                 filesSizeLabel.Invoke(() =>
@@ -634,13 +632,8 @@ namespace osu_cleaner
                 });
 
                 _delWorker.ReportProgress((int)((double)current / totalToDelete * 100));
-            }
-
-            _delWorker.ReportProgress(100);
-            progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
-            if (_listUpdater.IsBusy) _listUpdater.CancelAsync();
+            });
         }
-
         private readonly List<string> _queueRemovedItems = new List<string>();
         private readonly Mutex _m = new Mutex();
 

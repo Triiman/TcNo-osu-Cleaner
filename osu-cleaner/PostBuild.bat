@@ -2,11 +2,7 @@ REM Move is currently only for build, as moving the files seems to prevent the p
 
 REM Get current directory:
 echo Current directory: %cd%
-
-set CERTIFICATE_PATH=C:\certificate.pfx
-set CERTIFICATE_PASSWORD=1234
-set EXE_PATH=C:\Users\juanm\Documents\GitProjects\TcNo-osu-Cleaner\osu-cleaner\bin\Debug
-
+set origDir=%cd%
 
 REM SET VARIABLES
 REM If SIGNTOOL environment variable is not set then try setting it to a known location
@@ -38,21 +34,19 @@ if exist "%zip%" goto ZJ
     exit -1
 :ZJ
 
-ECHO Before Sign: %cd%
+cd %origDir%\bin\Release\
 ECHO -----------------------------------
 ECHO Signing files for AnyCPU Release in Visual Studio
 ECHO -----------------------------------
 
-"%SIGNTOOL%" sign /tr http://timestamp.sectigo.com?td=sha256 /td SHA256 /fd SHA256 /f "%CERTIFICATE_PATH%" /p "%CERTIFICATE_PASSWORD%" "%EXE_PATH%"
-
-ECHO SIGNED!
+"%SIGNTOOL%" sign /tr http://timestamp.sectigo.com?td=sha256 /td SHA256 /fd SHA256 /a TcNo-osu-cleaner.exe
 
 cd ../
-REN "Debug" "TcNo-osu-Cleaner"
+REN "Release" "TcNo-osu-Cleaner"
 
 REM Compress files
 echo Creating .7z archive
 "%zip%" a -t7z -mmt24 -mx9  "TcNo-osu-Cleaner.7z" ".\TcNo-osu-Cleaner"
 echo Done!
 
-cd %cd%
+cd %origDir%
