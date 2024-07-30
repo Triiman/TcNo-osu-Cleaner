@@ -62,7 +62,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DarkUI">
-      <HintPath>..\DarkUI\DarkUI\bin\Release\DarkUI.dll</HintPath>
+      <HintPath>.\Resources\DarkUI\DarkUI\bin\Release\DarkUI.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
