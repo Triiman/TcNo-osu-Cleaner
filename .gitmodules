@@ -1,0 +1,3 @@
+[submodule "osu-cleaner/DarkUI"]
+	path = osu-cleaner/DarkUI
+	url = https://github.com/TCNOco/DarkUI

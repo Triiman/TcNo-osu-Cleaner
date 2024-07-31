@@ -669,7 +669,7 @@ namespace osu_cleaner
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(846, 442);
             this.Name = "MainApp";
-            this.Text = "cln! (osu!Cleaner by TechNobo)";
+            this.Text = "cln! (osu!Cleaner by TroubleChute)";
             this.Load += new System.EventHandler(this.MainApp_Load);
             this.tbLFooter.ResumeLayout(false);
             this.pnlBottomInfo.ResumeLayout(false);

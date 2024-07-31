@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("osu-cleaner v2.0 (TechNobo)")]
-[assembly: AssemblyDescription("Lower osu! storage usage. Original by henntix, Updated by TechNobo https://tcno.co")]
+[assembly: AssemblyTitle("osu-cleaner v2.5 (TroubleChute)")]
+[assembly: AssemblyDescription("Lower osu! storage usage. Original by henntix, Updated by TroubleChute https://tcno.co")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Wesley Pyburn (TechNobo)")]
+[assembly: AssemblyCompany("Wesley Pyburn (TroubleChute)")]
 [assembly: AssemblyProduct("osu-cleaner")]
-[assembly: AssemblyCopyright("Copyright © TechNobo (Wesley Pyburn) 2020-2021")]
+[assembly: AssemblyCopyright("Copyright © TroubleChute (Wesley Pyburn) 2020-2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

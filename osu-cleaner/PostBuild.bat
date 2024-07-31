@@ -39,7 +39,8 @@ ECHO -----------------------------------
 ECHO Signing files for AnyCPU Release in Visual Studio
 ECHO -----------------------------------
 
-"%SIGNTOOL%" sign /tr http://timestamp.sectigo.com?td=sha256 /td SHA256 /fd SHA256 /a TcNo-osu-cleaner.exe
+REM "%SIGNTOOL%" sign /tr http://timestamp.sectigo.com?td=sha256 /td SHA256 /fd SHA256 /a TcNo-osu-cleaner.exe
+REM Have skipped signing for now. For more details: https://github.com/TCNOco/TcNo-Acc-Switcher/commit/c283aa2bae4deaed93e7757f188813560ef3b02e
 
 cd ../
 REN "Release" "TcNo-osu-Cleaner"

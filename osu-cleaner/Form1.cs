@@ -1,5 +1,5 @@
 // cln! TcNo-osu-Cleaner - A small tool, written in C#, to clean unused elements from beatmaps.
-// Copyright (C) 2021 TechNobo (Wesley Pyburn)
+// Copyright (C) 2024 TroubleChute (Wesley Pyburn)
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -39,7 +39,7 @@ namespace osu_cleaner
 {
     public partial class MainApp : DarkForm
     {
-	    private const string _versionNumber = "2.4.2";
+	    private const string _versionNumber = "2.5";
 	    private readonly ContextMenuStrip _collectionRoundMenuStrip = new ContextMenuStrip();
         private long _filesSize;
         private long _forRemovalSize;
@@ -56,7 +56,7 @@ namespace osu_cleaner
 
         private void MainApp_Load(object sender, EventArgs e)
         {
-            Text = $"cln! (osu!Cleaner by TechNobo) v{_versionNumber}";
+            Text = $"cln! (osu!Cleaner by TroubleChute) v{_versionNumber}";
 
             directoryPath.Text = GetOsuPath();
 

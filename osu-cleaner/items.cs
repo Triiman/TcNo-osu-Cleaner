@@ -72,7 +72,7 @@ namespace osu_cleaner
         }
     }
 
-    public class DarkCheckedListBox : CheckedListBox // Created by TechNobo :)
+    public class DarkCheckedListBox : CheckedListBox // Created by TroubleChute :)
     {
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
