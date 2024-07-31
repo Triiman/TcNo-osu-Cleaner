@@ -177,7 +177,6 @@ namespace osu_cleaner
 
         public static string GetReplayUsername(string fileName)
         {
-            byte[] buff = null;
             var fs = new FileStream(fileName,
                 FileMode.Open,
                 FileAccess.Read);

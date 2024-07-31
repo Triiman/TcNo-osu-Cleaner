@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DarkUI">
-      <HintPath>..\..\DarkUI\DarkUI\bin\Release\DarkUI.dll</HintPath>
+      <HintPath>.\Resources\DarkUI\DarkUI\bin\Release\DarkUI.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -66,6 +66,11 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Resources.Extensions">
+      <HintPath>.\Resources\System.Resources.Extension\System.Resources.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryInfoExtensions.cs" />

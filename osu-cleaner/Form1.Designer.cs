@@ -49,6 +49,7 @@ namespace osu_cleaner
             this.btnManageReplays = new DarkUI.Controls.DarkButton();
             this.btnReplaceMissing = new DarkUI.Controls.DarkButton();
             this.lblPrompt = new DarkUI.Controls.DarkLabel();
+            this.lblModePrompt = new DarkUI.Controls.DarkLabel();
             this.allUncommon = new DarkUI.Controls.DarkCheckBox();
             this.bloatExtraDeleteBox = new DarkUI.Controls.DarkCheckBox();
             this.hitSoundsDeleteCheckbox = new DarkUI.Controls.DarkCheckBox();
@@ -56,6 +57,10 @@ namespace osu_cleaner
             this.sbDeleteCheckbox = new DarkUI.Controls.DarkCheckBox();
             this.skinDeleteCheckbox = new DarkUI.Controls.DarkCheckBox();
             this.videoDeleteCheckbox = new DarkUI.Controls.DarkCheckBox();
+            this.standardModeCheckbox = new DarkUI.Controls.DarkCheckBox();
+            this.taikoModeCheckbox = new DarkUI.Controls.DarkCheckBox();
+            this.ctbModeCheckbox = new DarkUI.Controls.DarkCheckBox();
+            this.maniaModeCheckbox = new DarkUI.Controls.DarkCheckBox();
             this.directoryPath = new System.Windows.Forms.TextBox();
             this.directorySelectButton = new DarkUI.Controls.DarkButton();
             this.directoryLabel = new DarkUI.Controls.DarkLabel();
@@ -235,6 +240,7 @@ namespace osu_cleaner
             this.pnlCheckboxes.Controls.Add(this.btnManageReplays);
             this.pnlCheckboxes.Controls.Add(this.btnReplaceMissing);
             this.pnlCheckboxes.Controls.Add(this.lblPrompt);
+            this.pnlCheckboxes.Controls.Add(this.lblModePrompt);
             this.pnlCheckboxes.Controls.Add(this.allUncommon);
             this.pnlCheckboxes.Controls.Add(this.bloatExtraDeleteBox);
             this.pnlCheckboxes.Controls.Add(this.hitSoundsDeleteCheckbox);
@@ -242,6 +248,10 @@ namespace osu_cleaner
             this.pnlCheckboxes.Controls.Add(this.sbDeleteCheckbox);
             this.pnlCheckboxes.Controls.Add(this.skinDeleteCheckbox);
             this.pnlCheckboxes.Controls.Add(this.videoDeleteCheckbox);
+            this.pnlCheckboxes.Controls.Add(this.standardModeCheckbox);
+            this.pnlCheckboxes.Controls.Add(this.taikoModeCheckbox);
+            this.pnlCheckboxes.Controls.Add(this.ctbModeCheckbox);
+            this.pnlCheckboxes.Controls.Add(this.maniaModeCheckbox);
             this.pnlCheckboxes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlCheckboxes.ForeColor = System.Drawing.Color.Purple;
             this.pnlCheckboxes.Location = new System.Drawing.Point(3, 3);
@@ -279,6 +289,17 @@ namespace osu_cleaner
             this.lblPrompt.Size = new System.Drawing.Size(139, 13);
             this.lblPrompt.TabIndex = 28;
             this.lblPrompt.Text = "Select files to Move/Delete:";
+            // 
+            // lblModePrompt
+            // 
+            this.lblModePrompt.AutoSize = true;
+            this.lblModePrompt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.lblModePrompt.Location = new System.Drawing.Point(367, 0);
+            this.lblModePrompt.Margin = new System.Windows.Forms.Padding(0);
+            this.lblModePrompt.Name = "lblModePrompt";
+            this.lblModePrompt.Size = new System.Drawing.Size(139, 13);
+            this.lblModePrompt.TabIndex = 28;
+            this.lblModePrompt.Text = "Select game mode:";
             // 
             // allUncommon
             // 
@@ -338,6 +359,38 @@ namespace osu_cleaner
             this.videoDeleteCheckbox.Size = new System.Drawing.Size(133, 17);
             this.videoDeleteCheckbox.TabIndex = 23;
             this.videoDeleteCheckbox.Text = "Videos";
+            // 
+            // StandardModeCheckbox
+            // 
+            this.standardModeCheckbox.Location = new System.Drawing.Point(370, 19);
+            this.standardModeCheckbox.Name = "StandardModeCheckbox";
+            this.standardModeCheckbox.Size = new System.Drawing.Size(133, 17);
+            this.standardModeCheckbox.TabIndex = 23;
+            this.standardModeCheckbox.Text = "Standard";
+            //
+            // TaikoModeCheckbox
+            // 
+            this.taikoModeCheckbox.Location = new System.Drawing.Point(370, 42);
+            this.taikoModeCheckbox.Name = "TaikoModeCheckbox";
+            this.taikoModeCheckbox.Size = new System.Drawing.Size(133, 17);
+            this.taikoModeCheckbox.TabIndex = 24;
+            this.taikoModeCheckbox.Text = "Taiko";
+            //
+            // CtbModeCheckbox
+            // 
+            this.ctbModeCheckbox.Location = new System.Drawing.Point(370, 65);
+            this.ctbModeCheckbox.Name = "CtbModeCheckbox";
+            this.ctbModeCheckbox.Size = new System.Drawing.Size(133, 17);
+            this.ctbModeCheckbox.TabIndex = 25;
+            this.ctbModeCheckbox.Text = "Catch the beat";
+            //
+            // ManiaModeCheckbox
+            // 
+            this.maniaModeCheckbox.Location = new System.Drawing.Point(370, 88);
+            this.maniaModeCheckbox.Name = "ManiaModeCheckbox";
+            this.maniaModeCheckbox.Size = new System.Drawing.Size(133, 17);
+            this.maniaModeCheckbox.TabIndex = 26;
+            this.maniaModeCheckbox.Text = "Mania";
             // 
             // directoryPath
             // 
@@ -662,6 +715,10 @@ namespace osu_cleaner
         private DarkUI.Controls.DarkCheckBox sbDeleteCheckbox;
         private DarkUI.Controls.DarkCheckBox skinDeleteCheckbox;
         private DarkUI.Controls.DarkCheckBox videoDeleteCheckbox;
+        private DarkUI.Controls.DarkCheckBox standardModeCheckbox;
+        private DarkUI.Controls.DarkCheckBox taikoModeCheckbox;
+        private DarkUI.Controls.DarkCheckBox ctbModeCheckbox;
+        private DarkUI.Controls.DarkCheckBox maniaModeCheckbox;
         private System.Windows.Forms.TextBox directoryPath;
         private DarkUI.Controls.DarkButton directorySelectButton;
         private DarkUI.Controls.DarkLabel directoryLabel;
@@ -681,9 +738,10 @@ namespace osu_cleaner
         private DarkUI.Controls.DarkButton openMoved;
         private ToolStripStatusLabel lblTechNobo;
         private DarkUI.Controls.DarkLabel lblPrompt;
+        private DarkUI.Controls.DarkLabel lblModePrompt;
         private DarkUI.Controls.DarkButton symlinkButton;
         private DarkUI.Controls.DarkButton btnReplaceMissing;
-		private ToolStripStatusLabel lblCurrentAccount;
+        private ToolStripStatusLabel lblCurrentAccount;
         private DarkUI.Controls.DarkButton btnManageReplays;
     }
 }

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Forms;
 using Microsoft.VisualBasic.FileIO;
@@ -213,6 +214,29 @@ namespace osu_cleaner
         }
 
         private string SongsFolder = "";
+
+        private bool FileContainsString(string filePath, string searchString)
+        {
+            try
+            {
+                using (var reader = new StreamReader(filePath))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.Contains(searchString))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading file {filePath}: {ex.Message}");
+            }
+            return false;
+        }
         private void FindElements(object sender, DoWorkEventArgs e)
         {
             int folderCount;
@@ -313,7 +337,50 @@ namespace osu_cleaner
                             _foundElements.Add(file);
                             _filesSize += GetFileSize(file);
                         }
-
+                    if (standardModeCheckbox.Checked)
+                    {
+                        if (Regex.IsMatch(fileName, "osu$"))
+                        {
+                            if (FileContainsString(file, "Mode: 0"))
+                            {
+                                _foundElements.Add(file);
+                                _filesSize += GetFileSize(file);
+                            }
+                        }
+                    }
+                    if (taikoModeCheckbox.Checked)
+                    {
+                        if (Regex.IsMatch(fileName, "osu$"))
+                        {
+                            if (FileContainsString(file, "Mode: 1"))
+                            {
+                                _foundElements.Add(file);
+                                _filesSize += GetFileSize(file);
+                            }
+                        }
+                    }
+                    if (ctbModeCheckbox.Checked)
+                    {
+                        if (Regex.IsMatch(fileName, "osu$"))
+                        {
+                            if (FileContainsString(file, "Mode: 2"))
+                            {
+                                _foundElements.Add(file);
+                                _filesSize += GetFileSize(file);
+                            }
+                        }
+                    }
+                    if (maniaModeCheckbox.Checked)
+                    {
+                        if (Regex.IsMatch(fileName, "osu$"))
+                        {
+                            if (FileContainsString(file, "Mode: 3"))
+                            {
+                                _foundElements.Add(file);
+                                _filesSize += GetFileSize(file);
+                            }
+                        }
+                    }
                     if (skinDeleteCheckbox.Checked)
                         if (RegexMatch(fileName, "^(applause|approachcircle|button-|combobreak|comboburst|count1|" +
                                                  "count2|count3|count|cursor|default-|failsound|fail-background|followpoint|" +
@@ -462,6 +529,10 @@ namespace osu_cleaner
             sbDeleteCheckbox.Enabled = !bChecked;
             skinDeleteCheckbox.Enabled = !bChecked;
             videoDeleteCheckbox.Enabled = !bChecked;
+            standardModeCheckbox.Enabled = !bChecked;
+            taikoModeCheckbox.Enabled = !bChecked;
+            ctbModeCheckbox.Enabled = !bChecked;
+            maniaModeCheckbox.Enabled = !bChecked;
         }
 
         // Context menu
@@ -519,7 +590,7 @@ namespace osu_cleaner
             var totalToDelete = delete.Count;
             var current = 0;
 
-            foreach (var file in delete)
+            Parallel.ForEach(delete, file =>
             {
                 try
                 {
@@ -544,7 +615,7 @@ namespace osu_cleaner
                         FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                     }
 
-                    current++;
+                    Interlocked.Increment(ref current);
                 }
                 catch (FileNotFoundException)
                 {
@@ -554,8 +625,6 @@ namespace osu_cleaner
                 }
 
                 // Prevent cross-thread errors
-                //elementList.Invoke(() => { elementList.Items.Remove(file); }); // This flickers A LOT!
-                //elementList.Invoke(() => { elementList.BeginUpdate(); elementList.Items.Remove(file); elementList.EndUpdate(); }); // This flickers A LOT!
                 QueueRemoveString(file);
 
                 filesSizeLabel.Invoke(() =>
@@ -563,14 +632,9 @@ namespace osu_cleaner
                     filesSizeLabel.Text = "Found: " + Math.Round((double) _filesSize / 1048576, 4) + " MB";
                 });
 
-                _delWorker.ReportProgress((int) ((double) current / totalToDelete * 100));
-            }
-
-            _delWorker.ReportProgress(100);
-            progressBarBackground.Invoke(() => { progressBarBackground.ForeColor = Color.FromArgb(80, 250, 123); });
-            if (_listUpdater.IsBusy) _listUpdater.CancelAsync();
+                _delWorker.ReportProgress((int)((double)current / totalToDelete * 100));
+            });
         }
-
         private readonly List<string> _queueRemovedItems = new List<string>();
         private readonly Mutex _m = new Mutex();
 

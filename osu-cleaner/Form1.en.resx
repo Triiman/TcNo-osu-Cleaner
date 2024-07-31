@@ -130,4 +130,16 @@
   <data name="checkBox1.Text" xml:space="preserve">
     <value>Delete storyboard elements (TODO)</value>
   </data>
+  <data name="standardModeCheckbox.Text" xml:space="preserve">
+    <value>Select Standard beatmaps</value>
+  </data>
+  <data name="taikoModeCheckbox.Text" xml:space="preserve">
+    <value>Select Taiko beatmaps</value>
+  </data>
+  <data name="ctbModeCheckbox.Text" xml:space="preserve">
+    <value>Select Catch the beat beatmaps</value>
+  </data>
+  <data name="maniaModeCheckbox.Text" xml:space="preserve">
+    <value>Select Mania beatmaps</value>
+  </data>
 </root>
