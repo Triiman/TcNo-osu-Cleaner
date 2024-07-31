@@ -32,7 +32,7 @@ If you are using a SSD, you will be happy! Deleting those elements will save you
 After either guessing or being told your osu! directory, it will take the options you give it and search for relative files. This lets you pull unused images and sounds out of song packs, as well as other "pointless" files, that you may choose not to use or already ignore because you have a custom skin/sounds active. You'd be surprised how much junk is just lying around in your folder!
 
 ## Required runtimes (Download and install):
-**- Requires Microsoft .NET Framework 4.5.2 Runtime:** [Web Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net452-web-installer), [Offline Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net452-offline-installer), [Other languages](https://dotnet.microsoft.com/download/dotnet-framework/net452)
+**- Requires Microsoft .NET Framework 4.8 Runtime:** [Web Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-web-installer), [Offline Installer](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer), [Other languages](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
 **Running the program:**
 After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo/TcNo-osu-Cleaner/releases) page, extract everything to a folder of your choice and run `TcNo-osu-Cleaner.exe`
