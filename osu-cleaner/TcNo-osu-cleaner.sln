@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcNo-osu-cleaner", "TcNo-osu-cleaner.csproj", "{D2107D30-B652-464A-AAEC-30F7FD6CAC85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkUI", "DarkUI\DarkUI\DarkUI.csproj", "{F19472F5-8C44-4C51-A8A0-B9DE5F555255}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D2107D30-B652-464A-AAEC-30F7FD6CAC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2107D30-B652-464A-AAEC-30F7FD6CAC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2107D30-B652-464A-AAEC-30F7FD6CAC85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F19472F5-8C44-4C51-A8A0-B9DE5F555255}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
