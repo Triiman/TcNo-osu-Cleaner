@@ -20,7 +20,7 @@
 
 
 Small tool, written in C#, to clean unused elements from beatmaps.
-Originally created by [henntix](https://github.com/henntix/osu-cleaner), but completely reskinned, revamped, branded and updated by [TechNobo](https://tcno.co)
+Originally created by [henntix](https://github.com/henntix/osu-cleaner), but completely reskinned, revamped, branded and updated by [TroubleChute](https://tcno.co)
 
 Lots of changes and improvements since the original 1.0 henntix release. Enjoy the revamped software!
 
@@ -44,7 +44,7 @@ After downloading your .zip from the [GitHub Releases](https://github.com/TcNobo
 </p>
 
 ## License: GNU General Public License v3.0
-Copyright for portions of [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [henntix](https://github.com/henntix/), 2016 as part of [osu-cleaner](https://github.com/henntix/osu-cleaner) and under The MIT License. All other copyright for [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [Wesley Pyburn (TechNobo)](https://github.com/TcNobo/) under The GNU General Public License v3.0.
+Copyright for portions of [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [henntix](https://github.com/henntix/), 2016 as part of [osu-cleaner](https://github.com/henntix/osu-cleaner) and under The MIT License. All other copyright for [TcNo-osu-Cleaner](https://github.com/TcNobo/TcNo-osu-Cleaner) are held by [Wesley Pyburn (TroubleChute)](https://github.com/TcNobo/) under The GNU General Public License v3.0.
 
 Additional license information for included NuGet packages and other parts of code can be found in: [HERE](https://github.com/TcNobo/TcNo-osu-Cleaner/blob/master/osu-cleaner/Additional%20Licenses.txt) `Additional Licenses.txt`, and are copied to the build directory, as well as distributed with release versions of this software.
 
@@ -54,7 +54,7 @@ Additional license information for included NuGet packages and other parts of co
 
 ## Changelog
 * v2.1 (24.04.2021) Added "Missing background" replacer and easy Songs folder moving through Junction Symlinks.
-* v2.0 (26.01.2021) Completely reskinned, updated & improved by [TechNobo](https://tcno.co).
+* v2.0 (26.01.2021) Completely reskinned, updated & improved by [TroubleChute](https://tcno.co).
 * v1.0 (06.11.2018) Initial release, written in 2016
 
 ---
