@@ -131,7 +131,7 @@ namespace osu_cleaner
             var path = folder.ShowDialog();
             if (path == DialogResult.OK)
                 //check if osu!.exe is present
-                if (!File.Exists(folder.SelectedPath + "\\osu!.exe"))
+                if (!File.Exists(folder.SelectedPath + "\osu!.exe"))
                 {
                     using (var dlg = new DarkMessageBox("Not a valid osu! directory!", "Error!",
                         DarkMessageBoxIcon.Error, DarkDialogButton.Ok))
